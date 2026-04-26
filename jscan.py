@@ -612,7 +612,7 @@ function switchTab(tab){
     if(tab==='forex'&&!window.forexLoaded) loadForex();
 }
 
-// ─── CRYPTO ───────────────────────────────────────────────
+// --- CRYPTO ---
 var STOCK_SECTORS = {
     "AAPL":"Technology","MSFT":"Technology","NVDA":"Technology","AMZN":"Consumer","GOOGL":"Technology",
     "META":"Technology","TSLA":"Automotive","BRK-B":"Finance","JPM":"Finance","V":"Finance",
@@ -726,7 +726,7 @@ function loadCrypto(){
     }).catch(function(){document.getElementById('last-updated').textContent='Error';});
 }
 
-// ─── STOCKS ───────────────────────────────────────────────
+// --- STOCKS ---
 function fmtVol(v){
     if(!v||v===0) return '—';
     if(v>=1e9) return (v/1e9).toFixed(2)+'B';
@@ -813,7 +813,7 @@ function loadStocks(){
     }).catch(function(){document.getElementById('stocks-data').innerHTML='<div class="ld" style="text-align:center;padding:40px">Error loading stocks</div>';});
 }
 
-// ─── FOREX ────────────────────────────────────────────────
+// --- FOREX ---
 function renderForex(data){
     var h='<div class="section-header">Major Forex Pairs — Rates from Frankfurter & ExchangeRate-API</div>';
     h+='<div class="forex-grid">';
@@ -899,7 +899,7 @@ function loadForex(){
     }).catch(function(){document.getElementById('forex-data').innerHTML='<div class="ld" style="text-align:center;padding:40px">Error loading forex</div>';});
 }
 
-// ─── INIT ─────────────────────────────────────────────────
+// --- INIT ---
 setInterval(function(){
     var active=document.querySelector('.tab-content.active');
     if(active&&active.id==='content-crypto') loadCrypto();
