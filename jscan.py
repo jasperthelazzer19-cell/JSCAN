@@ -495,7 +495,10 @@ body{font-family:'Inter',sans-serif;background:#0a0a0a;color:#e0e0e0;min-height:
 .spinner{width:32px;height:32px;border:2px solid #1a1a1a;border-top-color:#00ff88;border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .ld{color:#333;font-size:.85em}
-.section-header{font-size:.8em;color:#444;text-transform:uppercase;letter-spacing:.8px;font-weight:500;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #141414}
+.sort-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.sort-label{font-size:.75em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:500}
+.sort-select{background:#0d0d0d;border:1px solid #1c1c1c;color:#aaa;padding:6px 12px;border-radius:7px;font-size:.8em;font-family:inherit;cursor:pointer;outline:none;transition:border-color .2s}
+.sort-select:hover,.sort-select:focus{border-color:#00ff88;color:#fff}
 .modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.93);z-index:999;align-items:center;justify-content:center;padding:30px}
 .modal-bg.open{display:flex}
 .modal-box{background:#0d0d0d;border:1px solid #1c1c1c;border-radius:16px;padding:26px;max-width:660px;width:100%;position:relative}
@@ -611,23 +614,74 @@ function switchTab(tab){
 }
 
 // ─── CRYPTO ───────────────────────────────────────────────
+var STOCK_SECTORS = {
+    "AAPL":"Technology","MSFT":"Technology","NVDA":"Technology","AMZN":"Consumer","GOOGL":"Technology",
+    "META":"Technology","TSLA":"Automotive","BRK-B":"Finance","JPM":"Finance","V":"Finance",
+    "WMT":"Retail","XOM":"Energy","UNH":"Healthcare","LLY":"Healthcare","MA":"Finance",
+    "JNJ":"Healthcare","PG":"Consumer","HD":"Retail","MRK":"Healthcare","COST":"Retail",
+    "ABBV":"Healthcare","CVX":"Energy","BAC":"Finance","KO":"Consumer","PEP":"Consumer",
+    "ADBE":"Technology","CRM":"Technology","NFLX":"Media","AMD":"Technology","TMO":"Healthcare",
+    "ACN":"Technology","MCD":"Consumer","CSCO":"Technology","ABT":"Healthcare","LIN":"Industrial",
+    "DHR":"Healthcare","WFC":"Finance","TXN":"Technology","NEE":"Utilities","PM":"Consumer",
+    "RTX":"Defense","AMGN":"Healthcare","LOW":"Retail","ORCL":"Technology","UPS":"Industrial",
+    "INTC":"Technology","QCOM":"Technology","CAT":"Industrial","NOW":"Technology","INTU":"Technology",
+    "PLTR":"Technology","SNOW":"Technology","COIN":"Crypto","HOOD":"Finance","RBLX":"Gaming",
+    "UBER":"Transport","LYFT":"Transport","ABNB":"Travel","DASH":"Consumer","SPOT":"Media",
+    "SHOP":"Technology","SQ":"Finance","PYPL":"Finance","SOFI":"Finance","AFRM":"Finance",
+    "NET":"Technology","DDOG":"Technology","ZS":"Technology","CRWD":"Technology","OKTA":"Technology",
+    "ARM":"Technology","SMCI":"Technology","MU":"Technology","TSM":"Technology","ASML":"Technology",
+    "AMAT":"Technology","LRCX":"Technology","KLAC":"Technology","ON":"Technology","MRVL":"Technology",
+    "DIS":"Media","PARA":"Media","WBD":"Media","CMCSA":"Media","T":"Telecom",
+    "VZ":"Telecom","TMUS":"Telecom","CHTR":"Telecom","DISH":"Telecom",
+    "GS":"Finance","MS":"Finance","BLK":"Finance","C":"Finance","USB":"Finance",
+    "PNC":"Finance","TFC":"Finance","SCHW":"Finance","AXP":"Finance","COF":"Finance"
+};
+
+function sortData(dataArr, sortBy) {
+    return dataArr.slice().sort(function(a, b) {
+        if(sortBy === 'price-hl') return b.price - a.price;
+        if(sortBy === 'price-lh') return a.price - b.price;
+        if(sortBy === 'change-hl') return b.chg - a.chg;
+        if(sortBy === 'change-lh') return a.chg - b.chg;
+        if(sortBy === 'alpha') return a.sym.localeCompare(b.sym);
+        if(sortBy === 'spread-hl') return (b.spread||0) - (a.spread||0);
+        return 0;
+    });
+}
+
+function makeSortBar(id, extraOptions) {
+    var opts = '<option value="default">Default</option><option value="alpha">A → Z</option><option value="change-hl">% Change ↓</option><option value="change-lh">% Change ↑</option><option value="price-hl">Price ↓</option><option value="price-lh">Price ↑</option>'+(extraOptions||'');
+    return '<div class="sort-bar"><span class="sort-label">Sort by</span><select class="sort-select" id="sort-'+id+'" onchange="handleSort(\''+id+'\')">'+opts+'</select></div>';
+}
+
 function renderCrypto(data){
-    var h='<div class="grid">';
+    var arr=[];
     Object.keys(data).forEach(function(sym){
         var c=data[sym],ex=c.exchanges,keys=Object.keys(ex);
         if(!keys.length)return;
         var prices=keys.map(function(k){return ex[k];});
         var minP=Math.min.apply(null,prices),maxP=Math.max.apply(null,prices);
-        var spread=maxP>minP?((maxP-minP)/minP*100).toFixed(4):'0.0000';
-        var bestBuy=keys[prices.indexOf(minP)];
+        var spread=maxP>minP?((maxP-minP)/minP*100):0;
         var avg=prices.reduce(function(a,b){return a+b;},0)/prices.length;
+        arr.push({sym:sym,price:avg,chg:c.change24h||0,spread:spread,data:c,ex:ex,keys:keys,minP:minP,maxP:maxP});
+    });
+
+    var sortBy=document.getElementById('sort-crypto')?document.getElementById('sort-crypto').value:'default';
+    if(sortBy!=='default') arr=sortData(arr,sortBy==='spread-hl'?'spread-hl':sortBy);
+
+    var h=makeSortBar('crypto','<option value="spread-hl">Spread ↓</option>');
+    h+='<div class="grid">';
+    arr.forEach(function(item){
+        var sym=item.sym,c=item.data,ex=item.ex,keys=item.keys,minP=item.minP,maxP=item.maxP;
+        var spread=item.spread.toFixed(4);
+        var bestBuy=keys[Object.values(ex).indexOf(minP)]||keys[0];
         var sc=parseFloat(spread)>0.5?'green':parseFloat(spread)>0.1?'yellow':'gray';
-        var chg=c.change24h||0;
+        var chg=item.chg;
         var cwId='cw-'+sym,ttId='tt-'+sym;
         h+='<div class="card">';
         h+='<div class="card-header">';
         h+='<div class="card-left"><div class="card-ticker"><span class="card-symbol">'+sym+'</span><button class="chart-btn" data-type="crypto" data-coin="'+sym+'" data-title="'+c.name+' ('+sym+')">24h</button></div><div class="card-name">'+c.name+'</div></div>';
-        h+='<div class="card-right"><div class="card-price">'+fmt(avg)+'</div><div class="card-change '+changeClass(chg)+'">'+changeStr(chg)+'</div></div>';
+        h+='<div class="card-right"><div class="card-price">'+fmt(item.price)+'</div><div class="card-change '+changeClass(chg)+'">'+changeStr(chg)+'</div></div>';
         h+='</div>';
         h+='<div class="stats-bar">';
         h+='<div class="stat"><div class="stat-label">Best Buy</div><div class="stat-value green">'+bestBuy+'</div></div>';
@@ -651,12 +705,17 @@ function renderCrypto(data){
     });
     h+='</div>';
     document.getElementById('crypto-data').innerHTML=h;
-    Object.keys(data).forEach(function(sym){
-        if(Object.keys(data[sym].exchanges).length) loadChartInto('crypto',sym,'cw-'+sym,'tt-'+sym);
+    arr.forEach(function(item){
+        if(item.keys.length) loadChartInto('crypto',item.sym,'cw-'+item.sym,'tt-'+item.sym);
     });
     document.querySelectorAll('#crypto-data .chart-btn').forEach(function(btn){
         btn.addEventListener('click',function(){openModal('crypto',this.dataset.coin,this.dataset.title);});
     });
+}
+
+function handleSort(tab){
+    if(tab==='crypto' && Object.keys(cryptoData).length) renderCrypto(cryptoData);
+    if(tab==='stocks' && stockData.loaded) renderStocks(stockData.cache);
 }
 
 function loadCrypto(){
@@ -678,70 +737,63 @@ function fmtVol(v){
 }
 
 function renderStocks(data){
-    var keys=Object.keys(data);
-    var h='<div class="section-header">Top 50 Stocks — Prev day close · Powered by Polygon.io · '+keys.length+' loaded</div>';
-    h+='<div class="grid">';
-    keys.forEach(function(sym){
+    var arr=Object.keys(data).map(function(sym){
         var s=data[sym];
-        var chg=s.change24h||0;
+        return {sym:sym,price:s.price,chg:s.change24h||0,data:s};
+    });
+
+    var sortBy=document.getElementById('sort-stocks')?document.getElementById('sort-stocks').value:'default';
+    if(sortBy!=='default') arr=sortData(arr,sortBy);
+
+    var count=arr.length;
+    var h=makeSortBar('stocks');
+    h+='<div class="section-header" style="margin-top:12px">Top 50 Stocks — Prev day close · Polygon.io · '+count+' loaded</div>';
+    h+='<div class="grid">';
+    arr.forEach(function(item){
+        var sym=item.sym,s=item.data;
+        var chg=item.chg;
         var cwId='scw-'+sym.replace(/[^a-z0-9]/gi,'');
         var ttId='stt-'+sym.replace(/[^a-z0-9]/gi,'');
         var sc=chg>2?'green':chg<-2?'red':'yellow';
+        var sector=STOCK_SECTORS[sym]||'Other';
+        var sectorColor={'Technology':'#4488ff','Finance':'#00cc88','Healthcare':'#ff6688','Consumer':'#ffaa44','Energy':'#ffcc00','Media':'#cc44ff','Telecom':'#44ccff','Retail':'#ff8844','Industrial':'#88aacc','Defense':'#aaaaaa','Automotive':'#ff4444','Utilities':'#44ffaa','Gaming':'#ff44aa','Transport':'#44aaff','Crypto':'#f7931a','Other':'#555'};
+        var sc2=sectorColor[sector]||'#555';
 
         h+='<div class="card">';
-
-        // Header
         h+='<div class="card-header">';
-        h+='<div class="card-left"><div class="card-ticker"><span class="card-symbol">'+sym+'</span><button class="chart-btn stock-chart-btn" data-sym="'+sym+'" data-title="'+s.name+' ('+sym+')">1d</button></div><div class="card-name">'+s.name+'</div></div>';
+        h+='<div class="card-left"><div class="card-ticker"><span class="card-symbol">'+sym+'</span><button class="chart-btn stock-chart-btn" data-sym="'+sym+'" data-title="'+s.name+' ('+sym+')">1d</button><span style="font-size:.62em;padding:2px 6px;border-radius:4px;background:'+sc2+'22;color:'+sc2+';border:1px solid '+sc2+'44;font-weight:600">'+sector+'</span></div><div class="card-name">'+s.name+'</div></div>';
         h+='<div class="card-right"><div class="card-price">'+fmt(s.price)+'</div><div class="card-change '+changeClass(chg)+'">'+changeStr(chg)+'</div></div>';
         h+='</div>';
-
-        // Stats bar
         h+='<div class="stats-bar">';
         h+='<div class="stat"><div class="stat-label">Open</div><div class="stat-value gray">'+fmt(s.open)+'</div></div>';
         h+='<div class="stat"><div class="stat-label">High</div><div class="stat-value green">'+fmt(s.high)+'</div></div>';
         h+='<div class="stat"><div class="stat-label">Low</div><div class="stat-value red">'+fmt(s.low)+'</div></div>';
         h+='<div class="stat"><div class="stat-label">Volume</div><div class="stat-value gray">'+fmtVol(s.volume)+'</div></div>';
         h+='</div>';
-
-        // Chart
         h+='<div class="chart-section"><div class="section-label">Intraday trend (5-min)</div><div class="chart-wrap" id="'+cwId+'"></div><div class="tooltip" id="'+ttId+'"><div class="tooltip-price"></div><div class="tooltip-time"></div></div></div>';
-
-        // VWAP row
         h+='<div class="stats-bar" style="border-top:1px solid #141414;border-bottom:none">';
         h+='<div class="stat"><div class="stat-label">VWAP</div><div class="stat-value gray">'+(s.vwap?fmt(s.vwap):'—')+'</div></div>';
         h+='<div class="stat"><div class="stat-label">Day Move</div><div class="stat-value '+sc+'">'+changeStr(chg)+'</div></div>';
         h+='<div class="stat"><div class="stat-label">Source</div><div class="stat-value gray">Polygon.io</div></div>';
         h+='<div class="stat"><div class="stat-label">Delay</div><div class="stat-value gray">15-min</div></div>';
         h+='</div>';
-
         h+='</div>';
     });
     h+='</div>';
     document.getElementById('stocks-data').innerHTML=h;
 
-    // Load charts
-    keys.forEach(function(sym){
+    arr.forEach(function(item){
+        var sym=item.sym;
         var cwId='scw-'+sym.replace(/[^a-z0-9]/gi,'');
         var ttId='stt-'+sym.replace(/[^a-z0-9]/gi,'');
         var ckey='stocks-'+sym;
-        if(chartCache[ckey]){
-            drawChart(cwId,chartCache[ckey],ttId,false);
-        } else {
-            fetch('/api/stocks/chart/'+sym)
-                .then(function(r){return r.json();})
-                .then(function(pts){
-                    chartCache[ckey]=pts;
-                    drawChart(cwId,pts,ttId,false);
-                }).catch(function(){});
-        }
+        if(chartCache[ckey]){drawChart(cwId,chartCache[ckey],ttId,false);}
+        else{fetch('/api/stocks/chart/'+sym).then(function(r){return r.json();}).then(function(pts){chartCache[ckey]=pts;drawChart(cwId,pts,ttId,false);}).catch(function(){});}
     });
 
-    // Wire chart modal buttons
     document.querySelectorAll('.stock-chart-btn').forEach(function(btn){
         btn.addEventListener('click',function(){
-            var sym=this.dataset.sym;
-            var title=this.dataset.title;
+            var sym=this.dataset.sym,title=this.dataset.title;
             document.getElementById('modal-title').textContent=title+' — Intraday Chart';
             document.getElementById('modal-chart').innerHTML='<div class="ld" style="text-align:center;padding-top:70px">Loading...</div>';
             document.getElementById('chart-modal').classList.add('open');
@@ -757,7 +809,7 @@ function renderStocks(data){
 function loadStocks(){
     document.getElementById('stocks-data').innerHTML='<div class="loading-screen"><div class="spinner"></div><div class="ld">Loading stock data from Polygon.io...</div></div>';
     fetch('/api/stocks').then(function(r){return r.json();}).then(function(data){
-        if(Object.keys(data).length) renderStocks(data);
+        if(Object.keys(data).length){stockData.cache=data;renderStocks(data);}
         else document.getElementById('stocks-data').innerHTML='<div class="ld" style="text-align:center;padding:40px">Stock data unavailable — market may be closed</div>';
     }).catch(function(){document.getElementById('stocks-data').innerHTML='<div class="ld" style="text-align:center;padding:40px">Error loading stocks</div>';});
 }
