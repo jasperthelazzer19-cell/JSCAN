@@ -936,15 +936,10 @@ function switchTab(tab){
 function loadSentiment(){
     window.sentimentLoaded=true;
     var container=document.getElementById('sentiment-data');
+    container.innerHTML='<div class="loading-screen"><div class="spinner"></div><div class="ld">Loading sentiment...</div></div>';
 
-    // Fetch Fear & Greed + BTC price to show correlation
-    Promise.all([
-        fetch('https://api.alternative.me/fng/?limit=7').then(function(r){return r.json();}),
-        fetch('/api/crypto').then(function(r){return r.json();})
-    ]).then(function(results){
-        var fgData=results[0].data||[];
-        var cryptoData=results[1]||{};
-
+    fetch('https://api.alternative.me/fng/?limit=7').then(function(r){return r.json();}).then(function(fgJson){
+        var fgData=fgJson.data||[];
         if(!fgData.length){container.innerHTML='<div style="text-align:center;padding:60px;color:#444">Sentiment data unavailable</div>';return;}
 
         var val=parseInt(fgData[0].value);
@@ -954,18 +949,10 @@ function loadSentiment(){
         var diff=prev!==null?val-prev:0;
         var sign=diff>0?'+':'';
 
-        // Most influenced assets (BTC and ETH are most correlated)
-        var btc=cryptoData['BTC'];
-        var eth=cryptoData['ETH'];
-        var sol=cryptoData['SOL'];
-
         var h='<div style="max-width:700px;margin:0 auto">';
-
-        // Header
         h+='<div style="margin-bottom:8px"><h2 style="font-size:1.3em;font-weight:700;color:#fff;margin-bottom:6px">Fear &amp; Greed Index</h2>';
-        h+='<p style="color:#555;font-size:.85em;line-height:1.6">A daily measure of crypto market emotion. Low scores mean investors are fearful and selling — often a buying opportunity. High scores mean greed is driving prices up — often a sign of overheating. Most useful for timing crypto entries and exits.</p></div>';
+        h+='<p style="color:#555;font-size:.85em;line-height:1.6">A daily measure of crypto market emotion. Low scores mean investors are fearful and selling — often a buying opportunity. High scores mean greed is driving prices up — often a sign of overheating.</p></div>';
 
-        // Main widget
         h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:14px;padding:28px;text-align:center;margin-bottom:20px">';
         h+='<div style="font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;margin-bottom:16px;font-weight:500">Todays Reading</div>';
         h+='<div style="font-size:4em;font-weight:800;color:'+col+'">'+val+'</div>';
@@ -979,15 +966,13 @@ function loadSentiment(){
         h+='<span>0 Extreme Fear</span><span>50 Neutral</span><span>100 Extreme Greed</span></div>';
         h+='</div>';
 
-        // 7-day history
         h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:20px;margin-bottom:20px">';
         h+='<div style="font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;margin-bottom:14px;font-weight:500">7-Day History</div>';
         h+='<div style="display:flex;gap:8px;align-items:flex-end;height:80px">';
-        var maxFg=Math.max.apply(null,fgData.map(function(d){return parseInt(d.value);}));
         fgData.slice().reverse().forEach(function(d){
             var v=parseInt(d.value);
             var c=v<=25?'#ff4444':v<=45?'#ff8800':v<=55?'#f0c040':v<=75?'#88dd00':'#00ff88';
-            var pct=Math.round(v/100*100);
+            var pct=v;
             var date=new Date(parseInt(d.timestamp)*1000).toLocaleDateString([],{weekday:'short'});
             h+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">';
             h+='<div style="font-size:.65em;color:'+c+';font-weight:600">'+v+'</div>';
@@ -997,29 +982,37 @@ function loadSentiment(){
         });
         h+='</div></div>';
 
-        // Most influenced assets
         h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:20px">';
         h+='<div style="font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;margin-bottom:14px;font-weight:500">Most Influenced Assets</div>';
-        h+='<p style="color:#555;font-size:.8em;margin-bottom:14px;line-height:1.5">These assets move most closely with market sentiment. When fear is high they typically drop; when greed takes over they tend to spike.</p>';
-        h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">';
-        [[btc,'BTC','Bitcoin','High'],[eth,'ETH','Ethereum','High'],[sol,'SOL','Solana','Medium']].forEach(function(item){
-            var asset=item[0],sym=item[1],name=item[2],corr=item[3];
-            if(!asset)return;
-            var prices=Object.values(asset.exchanges||{});
-            var price=prices.length?prices.reduce(function(a,b){return a+b;},0)/prices.length:0;
-            var chg=asset.change24h||0;
-            var cc=chg>0?'#00ff88':'#ff4444';
-            h+='<div style="background:#111;border:1px solid #1c1c1c;border-radius:10px;padding:14px;text-align:center">';
-            h+='<div style="font-size:.95em;font-weight:700;color:#fff;margin-bottom:2px">'+sym+'</div>';
-            h+='<div style="font-size:.7em;color:#555;margin-bottom:8px">'+name+'</div>';
-            h+='<div style="font-size:1em;font-weight:600;color:#e0e0e0;margin-bottom:4px">$'+price.toLocaleString('en-US',{maximumFractionDigits:0})+'</div>';
-            h+='<div style="font-size:.78em;font-weight:600;color:'+cc+'">'+(chg>0?'+':'')+chg.toFixed(2)+'%</div>';
-            h+='<div style="margin-top:8px;font-size:.65em;color:#444">Correlation: <span style="color:#f0c040">'+corr+'</span></div>';
-            h+='</div>';
-        });
-        h+='</div></div></div>';
+        h+='<p style="color:#555;font-size:.8em;margin-bottom:14px;line-height:1.5">These assets move most closely with market sentiment.</p>';
+        h+='<div id="sentiment-assets" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px"><div style="color:#333;font-size:.8em;padding:20px;text-align:center">Loading prices...</div></div>';
+        h+='</div></div>';
 
         container.innerHTML=h;
+
+        // Now fetch crypto prices for the asset boxes
+        fetch('/api/crypto').then(function(r){return r.json();}).then(function(cd){
+            var btc=cd['BTC'],eth=cd['ETH'],sol=cd['SOL'];
+            var assetHtml='';
+            [[btc,'BTC','Bitcoin'],[eth,'ETH','Ethereum'],[sol,'SOL','Solana']].forEach(function(item){
+                var asset=item[0],sym=item[1],name=item[2];
+                if(!asset){assetHtml+='';return;}
+                var prices=Object.values(asset.exchanges||{});
+                var price=prices.length?prices.reduce(function(a,b){return a+b;},0)/prices.length:0;
+                var chg=asset.change24h||0;
+                var cc=chg>0?'#00ff88':'#ff4444';
+                assetHtml+='<div style="background:#111;border:1px solid #1c1c1c;border-radius:10px;padding:14px;text-align:center">';
+                assetHtml+='<div style="font-size:.95em;font-weight:700;color:#fff;margin-bottom:2px">'+sym+'</div>';
+                assetHtml+='<div style="font-size:.7em;color:#555;margin-bottom:8px">'+name+'</div>';
+                assetHtml+='<div style="font-size:1em;font-weight:600;color:#e0e0e0;margin-bottom:4px">$'+price.toLocaleString('en-US',{maximumFractionDigits:0})+'</div>';
+                assetHtml+='<div style="font-size:.78em;font-weight:600;color:'+cc+'">'+(chg>0?'+':'')+chg.toFixed(2)+'%</div>';
+                assetHtml+='<div style="margin-top:8px;font-size:.65em;color:#444">Correlation: <span style="color:#f0c040">High</span></div>';
+                assetHtml+='</div>';
+            });
+            var el=document.getElementById('sentiment-assets');
+            if(el) el.innerHTML=assetHtml;
+        }).catch(function(){});
+
     }).catch(function(){
         container.innerHTML='<div style="text-align:center;padding:60px;color:#444">Error loading sentiment data</div>';
     });
@@ -1506,6 +1499,7 @@ window.onload=function(){
     loadCrypto();
     loadStocks();
     loadForex();
+    loadSentiment();
 };
 </script>
 </head>
