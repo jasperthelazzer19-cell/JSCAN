@@ -495,6 +495,7 @@ body{font-family:'Inter',sans-serif;background:#0a0a0a;color:#e0e0e0;min-height:
 @keyframes spin{to{transform:rotate(360deg)}}
 .ld{color:#333;font-size:.85em}
 .sort-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.sector-badge{font-size:.62em;padding:2px 7px;border-radius:4px;background:#1a1a1a;font-weight:600;margin-left:4px}
 .sort-label{font-size:.75em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:500}
 .sort-select{background:#0d0d0d;border:1px solid #1c1c1c;color:#aaa;padding:6px 12px;border-radius:7px;font-size:.8em;font-family:inherit;cursor:pointer;outline:none;transition:border-color .2s}
 .sort-select:hover,.sort-select:focus{border-color:#00ff88;color:#fff}
@@ -635,6 +636,12 @@ var STOCK_SECTORS = {
     "GS":"Finance","MS":"Finance","BLK":"Finance","C":"Finance","USB":"Finance",
     "PNC":"Finance","TFC":"Finance","SCHW":"Finance","AXP":"Finance","COF":"Finance"
 };
+var SECTOR_COLORS = {
+    "Technology":"#4488ff","Finance":"#00cc88","Healthcare":"#ff6688","Consumer":"#ffaa44",
+    "Energy":"#ffcc00","Media":"#cc44ff","Telecom":"#44ccff","Retail":"#ff8844",
+    "Industrial":"#88aacc","Defense":"#aaaaaa","Automotive":"#ff4444","Utilities":"#44ffaa",
+    "Gaming":"#ff44aa","Transport":"#44aaff","Crypto":"#f7931a","Travel":"#ff9944","Other":"#555555"
+};
 
 function sortData(dataArr, sortBy) {
     return dataArr.slice().sort(function(a, b) {
@@ -755,14 +762,11 @@ function renderStocks(data){
         var ttId='stt-'+sym.replace(/[^a-z0-9]/gi,'');
         var sc=chg>2?'green':chg<-2?'red':'yellow';
         var sector=STOCK_SECTORS[sym]||'Other';
-        var sectorColors={'Technology':'#4488ff','Finance':'#00cc88','Healthcare':'#ff6688','Consumer':'#ffaa44','Energy':'#ffcc00','Media':'#cc44ff','Telecom':'#44ccff','Retail':'#ff8844','Industrial':'#88aacc','Defense':'#aaaaaa','Automotive':'#ff4444','Utilities':'#44ffaa','Gaming':'#ff44aa','Transport':'#44aaff','Crypto':'#f7931a','Other':'#555555'};
-        var sc2=sectorColors[sector]||'#555555';
-        var sc2bg=sc2+'33';
-        var sc2border=sc2+'66';
+        var sc2=SECTOR_COLORS[sector]||'#555555';
 
         h+='<div class="card">';
         h+='<div class="card-header">';
-        h+='<div class="card-left"><div class="card-ticker"><span class="card-symbol">'+sym+'</span><button class="chart-btn stock-chart-btn" data-sym="'+sym+'" data-title="'+s.name+' ('+sym+')">1d</button><span style="font-size:.62em;padding:2px 6px;border-radius:4px;background:'+sc2bg+';color:'+sc2+';border:1px solid '+sc2border+';font-weight:600">'+sector+'</span></div><div class="card-name">'+s.name+'</div></div>';
+        h+='<div class="card-left"><div class="card-ticker"><span class="card-symbol">'+sym+'</span><button class="chart-btn stock-chart-btn" data-sym="'+sym+'" data-title="'+s.name+' ('+sym+')">1d</button><span class="sector-badge" style="color:'+sc2+'">'+sector+'</span></div><div class="card-name">'+s.name+'</div></div>';
         h+='<div class="card-right"><div class="card-price">'+fmt(s.price)+'</div><div class="card-change '+changeClass(chg)+'">'+changeStr(chg)+'</div></div>';
         h+='</div>';
         h+='<div class="stats-bar">';
