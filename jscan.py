@@ -668,7 +668,8 @@ function loadAccuracy(){
     window.accuracyLoaded=true;
     fetch('/api/accuracy').then(function(r){return r.json();}).then(function(data){
         if(!data||!data.calls||!data.calls.length){
-            document.getElementById('accuracy-data').innerHTML='<div style="text-align:center;padding:60px;color:#333"><div style="font-size:1.2em;color:#444;margin-bottom:8px">No scored calls yet</div><div style="color:#333;font-size:.85em">Check back after Monday\'s first run</div></div>';
+            var emptyMsg='<div style="text-align:center;padding:60px;color:#333"><div style="font-size:1.2em;color:#444;margin-bottom:8px">No scored calls yet</div><div style="color:#333;font-size:.85em">Check back after Monday first run</div></div>';
+            document.getElementById('accuracy-data').innerHTML=emptyMsg;
             return;
         }
         var calls=data.calls;
