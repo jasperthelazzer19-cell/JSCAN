@@ -649,7 +649,7 @@ function sortData(dataArr, sortBy) {
 }
 
 function makeSortBar(id, extraOptions) {
-    var opts = '<option value="default">Default</option><option value="alpha">A → Z</option><option value="change-hl">% Change ↓</option><option value="change-lh">% Change ↑</option><option value="price-hl">Price ↓</option><option value="price-lh">Price ↑</option>'+(extraOptions||'');
+    var opts = '<option value="default">Default</option><option value="alpha">A-Z</option><option value="change-hl">% Change High-Low</option><option value="change-lh">% Change Low-High</option><option value="price-hl">Price High-Low</option><option value="price-lh">Price Low-High</option>'+(extraOptions||'');
     return '<div class="sort-bar"><span class="sort-label">Sort by</span><select class="sort-select" id="sort-'+id+'" onchange="handleSort(\''+id+'\')">'+opts+'</select></div>';
 }
 
