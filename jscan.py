@@ -637,30 +637,98 @@ function switchTab(tab){
     if(tab==='stocks'&&!stockData.loaded) loadStocks();
     if(tab==='forex'&&!window.forexLoaded) loadForex();
     if(tab==='accuracy'&&!window.accuracyLoaded) loadAccuracy();
-    if(tab==='brief'&&!window.fgLoaded) loadFearGreed();
+    if(tab==='sentiment'&&!window.sentimentLoaded) loadSentiment();
 }
 
-function loadFearGreed(){
-    window.fgLoaded=true;
-    fetch('https://api.alternative.me/fng/?limit=2').then(function(r){return r.json();}).then(function(data){
-        var d=data.data;
-        if(!d||!d.length) return;
-        var val=parseInt(d[0].value);
-        var label=d[0].value_classification;
-        var prev=d[1]?parseInt(d[1].value):null;
+function loadSentiment(){
+    window.sentimentLoaded=true;
+    var container=document.getElementById('sentiment-data');
+
+    // Fetch Fear & Greed + BTC price to show correlation
+    Promise.all([
+        fetch('https://api.alternative.me/fng/?limit=7').then(function(r){return r.json();}),
+        fetch('/api/crypto').then(function(r){return r.json();})
+    ]).then(function(results){
+        var fgData=results[0].data||[];
+        var cryptoData=results[1]||{};
+
+        if(!fgData.length){container.innerHTML='<div style="text-align:center;padding:60px;color:#444">Sentiment data unavailable</div>';return;}
+
+        var val=parseInt(fgData[0].value);
+        var label=fgData[0].value_classification;
+        var prev=fgData[1]?parseInt(fgData[1].value):null;
         var col=val<=25?'#ff4444':val<=45?'#ff8800':val<=55?'#f0c040':val<=75?'#88dd00':'#00ff88';
-        document.getElementById('fg-value').textContent=val;
-        document.getElementById('fg-value').style.color=col;
-        document.getElementById('fg-label').textContent=label;
-        document.getElementById('fg-fill').style.width=val+'%';
-        document.getElementById('fg-fill').style.background=col;
+        var diff=prev!==null?val-prev:0;
+        var sign=diff>0?'+':'';
+
+        // Most influenced assets (BTC and ETH are most correlated)
+        var btc=cryptoData['BTC'];
+        var eth=cryptoData['ETH'];
+        var sol=cryptoData['SOL'];
+
+        var h='<div style="max-width:700px;margin:0 auto">';
+
+        // Header
+        h+='<div style="margin-bottom:8px"><h2 style="font-size:1.3em;font-weight:700;color:#fff;margin-bottom:6px">Fear &amp; Greed Index</h2>';
+        h+='<p style="color:#555;font-size:.85em;line-height:1.6">A daily measure of crypto market emotion. Low scores mean investors are fearful and selling — often a buying opportunity. High scores mean greed is driving prices up — often a sign of overheating. Most useful for timing crypto entries and exits.</p></div>';
+
+        // Main widget
+        h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:14px;padding:28px;text-align:center;margin-bottom:20px">';
+        h+='<div style="font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;margin-bottom:16px;font-weight:500">Todays Reading</div>';
+        h+='<div style="font-size:4em;font-weight:800;color:'+col+'">'+val+'</div>';
+        h+='<div style="font-size:1.1em;color:'+col+';font-weight:600;margin-top:4px">'+label+'</div>';
+        h+='<div style="margin:20px auto;height:10px;width:80%;background:#1a1a1a;border-radius:5px;overflow:hidden">';
+        h+='<div style="height:100%;width:'+val+'%;background:'+col+';border-radius:5px;transition:width 1s ease"></div></div>';
         if(prev!==null){
-            var diff=val-prev;
-            var sign=diff>0?'+':'';
-            document.getElementById('fg-prev').textContent='Yesterday: '+prev+' ('+sign+diff+')';
+            h+='<div style="font-size:.78em;color:#444">Yesterday: '+prev+' &nbsp;|&nbsp; Change: <span style="color:'+(diff>0?'#00ff88':diff<0?'#ff4444':'#555')+'">'+sign+diff+'</span></div>';
         }
+        h+='<div style="display:flex;justify-content:space-between;margin-top:12px;font-size:.65em;color:#333;width:80%;margin-left:auto;margin-right:auto">';
+        h+='<span>0 Extreme Fear</span><span>50 Neutral</span><span>100 Extreme Greed</span></div>';
+        h+='</div>';
+
+        // 7-day history
+        h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:20px;margin-bottom:20px">';
+        h+='<div style="font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;margin-bottom:14px;font-weight:500">7-Day History</div>';
+        h+='<div style="display:flex;gap:8px;align-items:flex-end;height:80px">';
+        var maxFg=Math.max.apply(null,fgData.map(function(d){return parseInt(d.value);}));
+        fgData.slice().reverse().forEach(function(d){
+            var v=parseInt(d.value);
+            var c=v<=25?'#ff4444':v<=45?'#ff8800':v<=55?'#f0c040':v<=75?'#88dd00':'#00ff88';
+            var pct=Math.round(v/100*100);
+            var date=new Date(parseInt(d.timestamp)*1000).toLocaleDateString([],{weekday:'short'});
+            h+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">';
+            h+='<div style="font-size:.65em;color:'+c+';font-weight:600">'+v+'</div>';
+            h+='<div style="width:100%;background:'+c+';border-radius:3px 3px 0 0;height:'+pct+'%"></div>';
+            h+='<div style="font-size:.6em;color:#444">'+date+'</div>';
+            h+='</div>';
+        });
+        h+='</div></div>';
+
+        // Most influenced assets
+        h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:20px">';
+        h+='<div style="font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;margin-bottom:14px;font-weight:500">Most Influenced Assets</div>';
+        h+='<p style="color:#555;font-size:.8em;margin-bottom:14px;line-height:1.5">These assets move most closely with market sentiment. When fear is high they typically drop; when greed takes over they tend to spike.</p>';
+        h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">';
+        [[btc,'BTC','Bitcoin','High'],[eth,'ETH','Ethereum','High'],[sol,'SOL','Solana','Medium']].forEach(function(item){
+            var asset=item[0],sym=item[1],name=item[2],corr=item[3];
+            if(!asset)return;
+            var prices=Object.values(asset.exchanges||{});
+            var price=prices.length?prices.reduce(function(a,b){return a+b;},0)/prices.length:0;
+            var chg=asset.change24h||0;
+            var cc=chg>0?'#00ff88':'#ff4444';
+            h+='<div style="background:#111;border:1px solid #1c1c1c;border-radius:10px;padding:14px;text-align:center">';
+            h+='<div style="font-size:.95em;font-weight:700;color:#fff;margin-bottom:2px">'+sym+'</div>';
+            h+='<div style="font-size:.7em;color:#555;margin-bottom:8px">'+name+'</div>';
+            h+='<div style="font-size:1em;font-weight:600;color:#e0e0e0;margin-bottom:4px">$'+price.toLocaleString('en-US',{maximumFractionDigits:0})+'</div>';
+            h+='<div style="font-size:.78em;font-weight:600;color:'+cc+'">'+(chg>0?'+':'')+chg.toFixed(2)+'%</div>';
+            h+='<div style="margin-top:8px;font-size:.65em;color:#444">Correlation: <span style="color:#f0c040">'+corr+'</span></div>';
+            h+='</div>';
+        });
+        h+='</div></div></div>';
+
+        container.innerHTML=h;
     }).catch(function(){
-        document.getElementById('fg-value').textContent='N/A';
+        container.innerHTML='<div style="text-align:center;padding:60px;color:#444">Error loading sentiment data</div>';
     });
 }
 
@@ -1059,6 +1127,7 @@ window.onload=function(){
   <button class="tab-btn active" id="tab-crypto" onclick="switchTab('crypto')">Crypto</button>
   <button class="tab-btn" id="tab-stocks" onclick="switchTab('stocks')">Stocks</button>
   <button class="tab-btn" id="tab-forex" onclick="switchTab('forex')">Forex</button>
+  <button class="tab-btn" id="tab-sentiment" onclick="switchTab('sentiment')">&#128200; Sentiment</button>
   <button class="tab-btn" id="tab-accuracy" onclick="switchTab('accuracy')">&#127919; Accuracy</button>
   <button class="tab-btn" id="tab-brief" onclick="switchTab('brief')">&#128202; Daily Brief</button>
 </div>
@@ -1072,37 +1141,29 @@ window.onload=function(){
   <div class="tab-content" id="content-forex">
     <div id="forex-data"></div>
   </div>
+  <div class="tab-content" id="content-sentiment">
+    <div id="sentiment-data"><div class="loading-screen"><div class="spinner"></div><div class="ld">Loading sentiment data...</div></div></div>
+  </div>
   <div class="tab-content" id="content-accuracy">
     <div id="accuracy-data"><div class="loading-screen"><div class="spinner"></div><div class="ld">Loading accuracy data...</div></div></div>
   </div>
   <div class="tab-content" id="content-brief">
-    <div style="max-width:660px;margin:40px auto">
-      <div id="fear-greed-widget" style="margin-bottom:28px;background:#0d0d0d;border:1px solid #1c1c1c;border-radius:14px;padding:24px;text-align:center">
-        <div style="font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px;font-weight:500">Market Sentiment</div>
-        <div id="fg-value" style="font-size:3em;font-weight:700;color:#00ff88">--</div>
-        <div id="fg-label" style="font-size:.9em;color:#555;margin-top:4px">Fear &amp; Greed Index</div>
-        <div id="fg-bar" style="margin:16px auto;height:8px;width:80%;background:#1a1a1a;border-radius:4px;overflow:hidden">
-          <div id="fg-fill" style="height:100%;width:0%;border-radius:4px;transition:width .8s ease"></div>
+    <div style="max-width:660px;margin:40px auto;text-align:center">
+      <div style="font-size:1.4em;font-weight:700;color:#fff;margin-bottom:8px">JSCAN Daily Brief</div>
+      <div style="color:#555;font-size:.9em;margin-bottom:32px;line-height:1.6">Get an AI-powered stock research report delivered to your inbox every morning at 8am. Claude analyzes 100 stocks, flags signals, and executes paper trades automatically.</div>
+      <a href="https://jscan-agent.up.railway.app" target="_blank" style="display:inline-block;background:#00ff88;color:#000;font-weight:700;font-size:1em;padding:14px 32px;border-radius:8px;text-decoration:none;transition:opacity .2s">Subscribe Free -></a>
+      <div style="margin-top:40px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+        <div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:10px;padding:20px 24px;flex:1;min-width:140px">
+          <div style="font-size:1.6em;font-weight:700;color:#00ff88">100</div>
+          <div style="font-size:.78em;color:#555;margin-top:4px">Stocks Tracked</div>
         </div>
-        <div id="fg-prev" style="font-size:.75em;color:#444;margin-top:8px"></div>
-      </div>
-      <div style="text-align:center">
-        <div style="font-size:1.4em;font-weight:700;color:#fff;margin-bottom:8px">JSCAN Daily Brief</div>
-        <div style="color:#555;font-size:.9em;margin-bottom:32px;line-height:1.6">Get an AI-powered stock research report delivered to your inbox every morning at 8am. Claude analyzes 100 stocks, flags signals, and executes paper trades automatically.</div>
-        <a href="https://agent.jscan.tech" target="_blank" style="display:inline-block;background:#00ff88;color:#000;font-weight:700;font-size:1em;padding:14px 32px;border-radius:8px;text-decoration:none;transition:opacity .2s">Subscribe Free -></a>
-        <div style="margin-top:40px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
-          <div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:10px;padding:20px 24px;flex:1;min-width:140px">
-            <div style="font-size:1.6em;font-weight:700;color:#00ff88">100</div>
-            <div style="font-size:.78em;color:#555;margin-top:4px">Stocks Tracked</div>
-          </div>
-          <div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:10px;padding:20px 24px;flex:1;min-width:140px">
-            <div style="font-size:1.6em;font-weight:700;color:#00ff88">8am</div>
-            <div style="font-size:.78em;color:#555;margin-top:4px">Daily Delivery</div>
-          </div>
-          <div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:10px;padding:20px 24px;flex:1;min-width:140px">
-            <div style="font-size:1.6em;font-weight:700;color:#00ff88">Free</div>
-            <div style="font-size:.78em;color:#555;margin-top:4px">Always</div>
-          </div>
+        <div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:10px;padding:20px 24px;flex:1;min-width:140px">
+          <div style="font-size:1.6em;font-weight:700;color:#00ff88">8am</div>
+          <div style="font-size:.78em;color:#555;margin-top:4px">Daily Delivery</div>
+        </div>
+        <div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:10px;padding:20px 24px;flex:1;min-width:140px">
+          <div style="font-size:1.6em;font-weight:700;color:#00ff88">Free</div>
+          <div style="font-size:.78em;color:#555;margin-top:4px">Always</div>
         </div>
       </div>
     </div>
