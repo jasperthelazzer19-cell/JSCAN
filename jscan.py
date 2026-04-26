@@ -400,6 +400,29 @@ def api_forex():
 def api_forex_chart(base, quote):
     return jsonify(get_forex_chart(base, quote))
 
+@app.route("/api/accuracy")
+def api_accuracy():
+    try:
+        import sqlite3, os
+        db_path = os.environ.get("AGENT_DB", "agent.db")
+        conn = sqlite3.connect(db_path)
+        c = conn.cursor()
+        c.execute("""
+            SELECT ca.symbol, ca.flag, ca.price, ca.date, cr.outcome
+            FROM calls ca
+            JOIN call_results cr ON ca.id = cr.call_id
+            WHERE cr.days_later = 1
+            ORDER BY ca.date DESC
+            LIMIT 100
+        """)
+        rows = c.fetchall()
+        conn.close()
+        calls = [{"symbol": r[0], "flag": r[1], "price": r[2], "date": r[3], "outcome": r[4]} for r in rows]
+        correct = len([c for c in calls if c["outcome"] == "correct"])
+        return jsonify({"calls": calls, "correct": correct, "total": len(calls)})
+    except Exception as e:
+        return jsonify({"calls": [], "correct": 0, "total": 0, "error": str(e)})
+
 HTML = """<!DOCTYPE html>
 <html>
 <head>
@@ -613,6 +636,83 @@ function switchTab(tab){
     document.getElementById('content-'+tab).classList.add('active');
     if(tab==='stocks'&&!stockData.loaded) loadStocks();
     if(tab==='forex'&&!window.forexLoaded) loadForex();
+    if(tab==='accuracy'&&!window.accuracyLoaded) loadAccuracy();
+    if(tab==='brief'&&!window.fgLoaded) loadFearGreed();
+}
+
+function loadFearGreed(){
+    window.fgLoaded=true;
+    fetch('https://api.alternative.me/fng/?limit=2').then(function(r){return r.json();}).then(function(data){
+        var d=data.data;
+        if(!d||!d.length) return;
+        var val=parseInt(d[0].value);
+        var label=d[0].value_classification;
+        var prev=d[1]?parseInt(d[1].value):null;
+        var col=val<=25?'#ff4444':val<=45?'#ff8800':val<=55?'#f0c040':val<=75?'#88dd00':'#00ff88';
+        document.getElementById('fg-value').textContent=val;
+        document.getElementById('fg-value').style.color=col;
+        document.getElementById('fg-label').textContent=label;
+        document.getElementById('fg-fill').style.width=val+'%';
+        document.getElementById('fg-fill').style.background=col;
+        if(prev!==null){
+            var diff=val-prev;
+            var sign=diff>0?'+':'';
+            document.getElementById('fg-prev').textContent='Yesterday: '+prev+' ('+sign+diff+')';
+        }
+    }).catch(function(){
+        document.getElementById('fg-value').textContent='N/A';
+    });
+}
+
+function loadAccuracy(){
+    window.accuracyLoaded=true;
+    fetch('/api/accuracy').then(function(r){return r.json();}).then(function(data){
+        if(!data||!data.calls||!data.calls.length){
+            document.getElementById('accuracy-data').innerHTML='<div style="text-align:center;padding:60px;color:#333"><div style="font-size:1.2em;color:#444;margin-bottom:8px">No scored calls yet</div><div style="color:#333;font-size:.85em">Check back after Monday\'s first run</div></div>';
+            return;
+        }
+        var calls=data.calls;
+        var correct=calls.filter(function(c){return c.outcome==='correct';}).length;
+        var total=calls.length;
+        var pct=Math.round(correct/total*100);
+        var col=pct>=60?'#00ff88':pct>=50?'#f0c040':'#ff4444';
+        var h='<div style="max-width:800px;margin:0 auto">';
+        h+='<div style="display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap">';
+        h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:20px 28px;flex:1;min-width:140px;text-align:center">';
+        h+='<div style="font-size:2.2em;font-weight:700;color:'+col+'">'+pct+'%</div><div style="font-size:.75em;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">Accuracy</div></div>';
+        h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:20px 28px;flex:1;min-width:140px;text-align:center">';
+        h+='<div style="font-size:2.2em;font-weight:700;color:#fff">'+total+'</div><div style="font-size:.75em;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">Total Calls</div></div>';
+        h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:20px 28px;flex:1;min-width:140px;text-align:center">';
+        h+='<div style="font-size:2.2em;font-weight:700;color:#00ff88">'+correct+'</div><div style="font-size:.75em;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">Correct</div></div>';
+        h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:20px 28px;flex:1;min-width:140px;text-align:center">';
+        h+='<div style="font-size:2.2em;font-weight:700;color:#ff4444">'+(total-correct)+'</div><div style="font-size:.75em;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">Incorrect</div></div>';
+        h+='</div>';
+        h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;overflow:hidden">';
+        h+='<table style="width:100%;border-collapse:collapse">';
+        h+='<thead><tr style="background:#111;border-bottom:1px solid #1c1c1c">';
+        h+='<th style="padding:12px 18px;text-align:left;font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:500">Date</th>';
+        h+='<th style="padding:12px 18px;text-align:left;font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:500">Symbol</th>';
+        h+='<th style="padding:12px 18px;text-align:left;font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:500">Signal</th>';
+        h+='<th style="padding:12px 18px;text-align:left;font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:500">Price</th>';
+        h+='<th style="padding:12px 18px;text-align:left;font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:500">Result</th>';
+        h+='</tr></thead><tbody>';
+        calls.slice().reverse().forEach(function(c){
+            var fc=c.flag==='GREEN'?'#00ff88':c.flag==='RED'?'#ff4444':'#f0c040';
+            var oc=c.outcome==='correct'?'#00ff88':'#ff4444';
+            var oe=c.outcome==='correct'?'CORRECT':'WRONG';
+            h+='<tr style="border-bottom:1px solid #111">';
+            h+='<td style="padding:12px 18px;font-size:.82em;color:#555">'+c.date+'</td>';
+            h+='<td style="padding:12px 18px;font-size:.9em;font-weight:700;color:#fff">'+c.symbol+'</td>';
+            h+='<td style="padding:12px 18px;font-size:.82em;font-weight:600;color:'+fc+'">'+c.flag+'</td>';
+            h+='<td style="padding:12px 18px;font-size:.82em;color:#aaa">$'+c.price+'</td>';
+            h+='<td style="padding:12px 18px;font-size:.82em;font-weight:700;color:'+oc+'">'+oe+'</td>';
+            h+='</tr>';
+        });
+        h+='</tbody></table></div></div>';
+        document.getElementById('accuracy-data').innerHTML=h;
+    }).catch(function(){
+        document.getElementById('accuracy-data').innerHTML='<div style="text-align:center;padding:60px;color:#444">Error loading accuracy data</div>';
+    });
 }
 
 // --- FAVORITES ---
@@ -958,6 +1058,7 @@ window.onload=function(){
   <button class="tab-btn active" id="tab-crypto" onclick="switchTab('crypto')">Crypto</button>
   <button class="tab-btn" id="tab-stocks" onclick="switchTab('stocks')">Stocks</button>
   <button class="tab-btn" id="tab-forex" onclick="switchTab('forex')">Forex</button>
+  <button class="tab-btn" id="tab-accuracy" onclick="switchTab('accuracy')">&#127919; Accuracy</button>
   <button class="tab-btn" id="tab-brief" onclick="switchTab('brief')">&#128202; Daily Brief</button>
 </div>
 <div class="container">
@@ -970,24 +1071,37 @@ window.onload=function(){
   <div class="tab-content" id="content-forex">
     <div id="forex-data"></div>
   </div>
+  <div class="tab-content" id="content-accuracy">
+    <div id="accuracy-data"><div class="loading-screen"><div class="spinner"></div><div class="ld">Loading accuracy data...</div></div></div>
+  </div>
   <div class="tab-content" id="content-brief">
-    <div style="max-width:560px;margin:40px auto;text-align:center">
-      <div style="font-size:2em;margin-bottom:12px"></div>
-      <div style="font-size:1.4em;font-weight:700;color:#fff;margin-bottom:8px">JSCAN Daily Brief</div>
-      <div style="color:#555;font-size:.9em;margin-bottom:32px;line-height:1.6">Get an AI-powered stock research report delivered to your inbox every morning at 8am. Claude analyzes 100 stocks, flags signals, and executes paper trades automatically.</div>
-      <a href="https://jscan-agent.up.railway.app" target="_blank" style="display:inline-block;background:#00ff88;color:#000;font-weight:700;font-size:1em;padding:14px 32px;border-radius:8px;text-decoration:none;transition:opacity .2s">Subscribe Free -></a>
-      <div style="margin-top:40px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
-        <div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:10px;padding:20px 24px;flex:1;min-width:140px">
-          <div style="font-size:1.6em;font-weight:700;color:#00ff88">100</div>
-          <div style="font-size:.78em;color:#555;margin-top:4px">Stocks Tracked</div>
+    <div style="max-width:660px;margin:40px auto">
+      <div id="fear-greed-widget" style="margin-bottom:28px;background:#0d0d0d;border:1px solid #1c1c1c;border-radius:14px;padding:24px;text-align:center">
+        <div style="font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px;font-weight:500">Market Sentiment</div>
+        <div id="fg-value" style="font-size:3em;font-weight:700;color:#00ff88">--</div>
+        <div id="fg-label" style="font-size:.9em;color:#555;margin-top:4px">Fear &amp; Greed Index</div>
+        <div id="fg-bar" style="margin:16px auto;height:8px;width:80%;background:#1a1a1a;border-radius:4px;overflow:hidden">
+          <div id="fg-fill" style="height:100%;width:0%;border-radius:4px;transition:width .8s ease"></div>
         </div>
-        <div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:10px;padding:20px 24px;flex:1;min-width:140px">
-          <div style="font-size:1.6em;font-weight:700;color:#00ff88">8am</div>
-          <div style="font-size:.78em;color:#555;margin-top:4px">Daily Delivery</div>
-        </div>
-        <div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:10px;padding:20px 24px;flex:1;min-width:140px">
-          <div style="font-size:1.6em;font-weight:700;color:#00ff88">Free</div>
-          <div style="font-size:.78em;color:#555;margin-top:4px">Always</div>
+        <div id="fg-prev" style="font-size:.75em;color:#444;margin-top:8px"></div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:1.4em;font-weight:700;color:#fff;margin-bottom:8px">JSCAN Daily Brief</div>
+        <div style="color:#555;font-size:.9em;margin-bottom:32px;line-height:1.6">Get an AI-powered stock research report delivered to your inbox every morning at 8am. Claude analyzes 100 stocks, flags signals, and executes paper trades automatically.</div>
+        <a href="https://agent.jscan.tech" target="_blank" style="display:inline-block;background:#00ff88;color:#000;font-weight:700;font-size:1em;padding:14px 32px;border-radius:8px;text-decoration:none;transition:opacity .2s">Subscribe Free -></a>
+        <div style="margin-top:40px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+          <div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:10px;padding:20px 24px;flex:1;min-width:140px">
+            <div style="font-size:1.6em;font-weight:700;color:#00ff88">100</div>
+            <div style="font-size:.78em;color:#555;margin-top:4px">Stocks Tracked</div>
+          </div>
+          <div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:10px;padding:20px 24px;flex:1;min-width:140px">
+            <div style="font-size:1.6em;font-weight:700;color:#00ff88">8am</div>
+            <div style="font-size:.78em;color:#555;margin-top:4px">Daily Delivery</div>
+          </div>
+          <div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:10px;padding:20px 24px;flex:1;min-width:140px">
+            <div style="font-size:1.6em;font-weight:700;color:#00ff88">Free</div>
+            <div style="font-size:.78em;color:#555;margin-top:4px">Always</div>
+          </div>
         </div>
       </div>
     </div>
