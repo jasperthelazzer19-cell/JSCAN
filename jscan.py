@@ -57,6 +57,205 @@ CRYPTO_COINS = {
     "JUP":  {"name": "Jupiter",       "binance": "JUPUSDT",  "kraken": None,        "coinbase": "JUP-USD",  "bybit": "JUPUSDT"},
     "RUNE": {"name": "THORChain",     "binance": "RUNEUSDT", "kraken": "RUNEUSD",  "coinbase": None,       "bybit": "RUNEUSDT"},
     "FLOW": {"name": "Flow",          "binance": "FLOWUSDT", "kraken": "FLOWUSD",  "coinbase": "FLOW-USD", "bybit": "FLOWUSDT"},
+    # Extended coins
+    "BNB":  {"name": "BNB",           "binance": "BNBUSDT",  "kraken": None,        "coinbase": None,       "bybit": "BNBUSDT"},
+    "TON":  {"name": "Toncoin",       "binance": "TONUSDT",  "kraken": None,        "coinbase": None,       "bybit": "TONUSDT"},
+    "VET":  {"name": "VeChain",       "binance": "VETUSDT",  "kraken": "VETUSD",   "coinbase": None,       "bybit": "VETUSDT"},
+    "THETA":{"name": "Theta Network", "binance": "THETAUSDT","kraken": "THETAUSD", "coinbase": None,       "bybit": "THETAUSDT"},
+    "EOS":  {"name": "EOS",           "binance": "EOSUSDT",  "kraken": "EOSUSD",   "coinbase": "EOS-USD",  "bybit": "EOSUSDT"},
+    "XTZ":  {"name": "Tezos",         "binance": "XTZUSDT",  "kraken": "XTZUSD",   "coinbase": "XTZ-USD",  "bybit": "XTZUSDT"},
+    "EGLD": {"name": "MultiversX",    "binance": "EGLDUSDT", "kraken": None,        "coinbase": None,       "bybit": "EGLDUSDT"},
+    "KAVA": {"name": "Kava",          "binance": "KAVAUSDT", "kraken": None,        "coinbase": "KAVA-USD", "bybit": "KAVAUSDT"},
+    "ONE":  {"name": "Harmony",       "binance": "ONEUSDT",  "kraken": None,        "coinbase": "ONE-USD",  "bybit": "ONEUSDT"},
+    "ZIL":  {"name": "Zilliqa",       "binance": "ZILUSDT",  "kraken": None,        "coinbase": None,       "bybit": "ZILUSDT"},
+    "BAT":  {"name": "Basic Attention","binance":"BATUSDT",  "kraken": "BATUSD",   "coinbase": "BAT-USD",  "bybit": "BATUSDT"},
+    "ZRX":  {"name": "0x Protocol",   "binance": "ZRXUSDT",  "kraken": "ZRXUSD",   "coinbase": "ZRX-USD",  "bybit": "ZRXUSDT"},
+    "ENJ":  {"name": "Enjin Coin",    "binance": "ENJUSDT",  "kraken": "ENJUSD",   "coinbase": "ENJ-USD",  "bybit": "ENJUSDT"},
+    "CHZ":  {"name": "Chiliz",        "binance": "CHZUSDT",  "kraken": None,        "coinbase": "CHZ-USD",  "bybit": "CHZUSDT"},
+    "HOT":  {"name": "Holo",          "binance": "HOTUSDT",  "kraken": None,        "coinbase": None,       "bybit": "HOTUSDT"},
+    "ONT":  {"name": "Ontology",      "binance": "ONTUSDT",  "kraken": None,        "coinbase": None,       "bybit": "ONTUSDT"},
+    "IOTA": {"name": "IOTA",          "binance": "IOTAUSDT", "kraken": "IOTAUSD",  "coinbase": None,       "bybit": "IOTAUSDT"},
+    "RVN":  {"name": "Ravencoin",     "binance": "RVNUSDT",  "kraken": None,        "coinbase": None,       "bybit": "RVNUSDT"},
+    "QTUM": {"name": "Qtum",          "binance": "QTUMUSDT", "kraken": "QTUMUSD",  "coinbase": None,       "bybit": "QTUMUSDT"},
+    "ICX":  {"name": "ICON",          "binance": "ICXUSDT",  "kraken": "ICXUSD",   "coinbase": None,       "bybit": "ICXUSDT"},
+    "WAVES":{"name": "Waves",         "binance": "WAVESUSDT","kraken": "WAVESUSD", "coinbase": None,       "bybit": "WAVESUSDT"},
+    "COMP": {"name": "Compound",      "binance": "COMPUSDT", "kraken": "COMPUSD",  "coinbase": "COMP-USD", "bybit": "COMPUSDT"},
+    "YFI":  {"name": "Yearn Finance", "binance": "YFIUSDT",  "kraken": "YFIUSD",   "coinbase": "YFI-USD",  "bybit": "YFIUSDT"},
+    "SUSHI":{"name": "SushiSwap",     "binance": "SUSHIUSDT","kraken": "SUSHIUSD", "coinbase": "SUSHI-USD","bybit": "SUSHIUSDT"},
+    "1INCH":{"name": "1inch Network", "binance": "1INCHUSDT","kraken": "1INCHUSD", "coinbase": "1INCH-USD","bybit": "1INCHUSDT"},
+    "ANKR": {"name": "Ankr",          "binance": "ANKRUSDT", "kraken": None,        "coinbase": "ANKR-USD", "bybit": "ANKRUSDT"},
+    "DYDX": {"name": "dYdX",          "binance": "DYDXUSDT", "kraken": "DYDXUSD",  "coinbase": "DYDX-USD", "bybit": "DYDXUSDT"},
+    "BLUR": {"name": "Blur",          "binance": "BLURUSDT", "kraken": None,        "coinbase": "BLUR-USD", "bybit": "BLURUSDT"},
+    "GMX":  {"name": "GMX",           "binance": "GMXUSDT",  "kraken": None,        "coinbase": None,       "bybit": "GMXUSDT"},
+    "MAGIC":{"name": "Magic",         "binance": "MAGICUSDT","kraken": None,        "coinbase": None,       "bybit": "MAGICUSDT"},
+    "GALA": {"name": "Gala",          "binance": "GALAUSDT", "kraken": None,        "coinbase": "GALA-USD", "bybit": "GALAUSDT"},
+    "IMX":  {"name": "Immutable X",   "binance": "IMXUSDT",  "kraken": "IMXUSD",   "coinbase": "IMX-USD",  "bybit": "IMXUSDT"},
+    "APE":  {"name": "ApeCoin",       "binance": "APEUSDT",  "kraken": "APEUSD",   "coinbase": "APE-USD",  "bybit": "APEUSDT"},
+    "GMT":  {"name": "STEPN",         "binance": "GMTUSDT",  "kraken": None,        "coinbase": None,       "bybit": "GMTUSDT"},
+    "STX":  {"name": "Stacks",        "binance": "STXUSDT",  "kraken": "STXUSD",   "coinbase": "STX-USD",  "bybit": "STXUSDT"},
+    "CFX":  {"name": "Conflux",       "binance": "CFXUSDT",  "kraken": None,        "coinbase": None,       "bybit": "CFXUSDT"},
+    "SSV":  {"name": "SSV Network",   "binance": "SSVUSDT",  "kraken": None,        "coinbase": None,       "bybit": "SSVUSDT"},
+    "PENDLE":{"name":"Pendle",        "binance": "PENDLEUSDT","kraken":None,         "coinbase": None,       "bybit": "PENDLEUSDT"},
+    "TIA":  {"name": "Celestia",      "binance": "TIAUSDT",  "kraken": "TIAUSD",   "coinbase": "TIA-USD",  "bybit": "TIAUSDT"},
+    "PYTH": {"name": "Pyth Network",  "binance": "PYTHUSDT", "kraken": None,        "coinbase": "PYTH-USD", "bybit": "PYTHUSDT"},
+    "JTO":  {"name": "Jito",          "binance": "JTOUSDT",  "kraken": None,        "coinbase": "JTO-USD",  "bybit": "JTOUSDT"},
+    "STRK": {"name": "Starknet",      "binance": "STRKUSDT", "kraken": None,        "coinbase": "STRK-USD", "bybit": "STRKUSDT"},
+    "DYM":  {"name": "Dymension",     "binance": "DYMUSDT",  "kraken": None,        "coinbase": None,       "bybit": "DYMUSDT"},
+    "ALT":  {"name": "AltLayer",      "binance": "ALTUSDT",  "kraken": None,        "coinbase": None,       "bybit": "ALTUSDT"},
+    "PIXEL":{"name": "Pixels",        "binance": "PIXELUSDT","kraken": None,        "coinbase": None,       "bybit": "PIXELUSDT"},
+    "PORTAL":{"name":"Portal",        "binance":"PORTALUSDT","kraken": None,        "coinbase": None,       "bybit": "PORTALUSDT"},
+    "MANTA":{"name": "Manta Network", "binance": "MANTAUSDT","kraken": None,        "coinbase": None,       "bybit": "MANTAUSDT"},
+    "OMNI": {"name": "Omni Network",  "binance": "OMNIUSDT", "kraken": None,        "coinbase": None,       "bybit": "OMNIUSDT"},
+    "REZ":  {"name": "Renzo",         "binance": "REZUSDT",  "kraken": None,        "coinbase": None,       "bybit": "REZUSDT"},
+    "ETHFI":{"name": "Ether.fi",      "binance": "ETHFIUSDT","kraken": None,        "coinbase": None,       "bybit": "ETHFIUSDT"},
+    "SAFE": {"name": "Safe",          "binance": "SAFEUSDT", "kraken": None,        "coinbase": None,       "bybit": "SAFEUSDT"},
+    "TNSR": {"name": "Tensor",        "binance": "TNSRUSDT", "kraken": None,        "coinbase": None,       "bybit": "TNSRUSDT"},
+    "W":    {"name": "Wormhole",      "binance": "WUSDT",    "kraken": None,        "coinbase": None,       "bybit": "WUSDT"},
+    "LISTA":{"name": "Lista DAO",     "binance": "LISTAUSDT","kraken": None,        "coinbase": None,       "bybit": "LISTAUSDT"},
+    "ZK":   {"name": "ZKsync",        "binance": "ZKUSDT",   "kraken": None,        "coinbase": None,       "bybit": "ZKUSDT"},
+    "IO":   {"name": "io.net",        "binance": "IOUSDT",   "kraken": None,        "coinbase": None,       "bybit": "IOUSDT"},
+    "ZRO":  {"name": "LayerZero",     "binance": "ZROUSDT",  "kraken": None,        "coinbase": None,       "bybit": "ZROUSDT"},
+    "EIGEN":{"name": "EigenLayer",    "binance": "EIGENUSDT","kraken": None,        "coinbase": None,       "bybit": "EIGENUSDT"},
+    "CATI": {"name": "Catizen",       "binance": "CATIUSDT", "kraken": None,        "coinbase": None,       "bybit": "CATIUSDT"},
+    "HMSTR":{"name": "Hamster Kombat","binance":"HMSTRUSDT", "kraken": None,        "coinbase": None,       "bybit": "HMSTRUSDT"},
+    "NEIRO":{"name": "Neiro",         "binance": "NEIROUSDT","kraken": None,        "coinbase": None,       "bybit": "NEIROUSDT"},
+    "DOGS": {"name": "Dogs",          "binance": "DOGSUSDT", "kraken": None,        "coinbase": None,       "bybit": "DOGSUSDT"},
+    "MOODENG":{"name":"Moo Deng",     "binance":"MOODENGUSDT","kraken":None,        "coinbase": None,       "bybit": "MOODENGUSDT"},
+    "PNUT": {"name": "Peanut",        "binance": "PNUTUSDT", "kraken": None,        "coinbase": None,       "bybit": "PNUTUSDT"},
+    "ACT":  {"name": "Act I",         "binance": "ACTUSDT",  "kraken": None,        "coinbase": None,       "bybit": "ACTUSDT"},
+    "GOAT": {"name": "Goat",          "binance": "GOATUSDT", "kraken": None,        "coinbase": None,       "bybit": "GOATUSDT"},
+    "CELO": {"name": "Celo",          "binance": "CELOUSDT", "kraken": "CELOUSD",  "coinbase": "CGLD-USD", "bybit": "CELOUSDT"},
+    "FET":  {"name": "Fetch.ai",      "binance": "FETUSDT",  "kraken": "FETUSD",   "coinbase": "FET-USD",  "bybit": "FETUSDT"},
+    "OCEAN":{"name": "Ocean Protocol","binance": "OCEANUSDT","kraken": "OCEANUSD", "coinbase": "OCEAN-USD","bybit": "OCEANUSDT"},
+    "AGIX": {"name": "SingularityNET","binance": "AGIXUSDT", "kraken": None,        "coinbase": None,       "bybit": "AGIXUSDT"},
+    "RENDER":{"name":"Render",        "binance":"RENDERUSDT","kraken": None,        "coinbase":"RENDER-USD","bybit": "RENDERUSDT"},
+    "AR":   {"name": "Arweave",       "binance": "ARUSDT",   "kraken": "ARUSD",    "coinbase": "AR-USD",   "bybit": "ARUSDT"},
+    "HNT":  {"name": "Helium",        "binance": "HNTUSDT",  "kraken": "HNTUSD",   "coinbase": "HNT-USD",  "bybit": "HNTUSDT"},
+    "STORJ":{"name": "Storj",         "binance": "STORJUSDT","kraken": "STORJUSD", "coinbase": "STORJ-USD","bybit": "STORJUSDT"},
+    "AKT":  {"name": "Akash Network", "binance": "AKTUSDT",  "kraken": None,        "coinbase": "AKT-USD",  "bybit": "AKTUSDT"},
+    "ROSE": {"name": "Oasis Network",  "binance": "ROSEUSDT", "kraken": None,        "coinbase": "ROSE-USD", "bybit": "ROSEUSDT"},
+    "BAND": {"name": "Band Protocol", "binance": "BANDUSDT", "kraken": "BANDUSD",  "coinbase": None,       "bybit": "BANDUSDT"},
+    "OGN":  {"name": "Origin Protocol","binance":"OGNUSDT",  "kraken": None,        "coinbase": "OGN-USD",  "bybit": "OGNUSDT"},
+    "NMR":  {"name": "Numeraire",     "binance": "NMRUSDT",  "kraken": "NMRUSD",   "coinbase": "NMR-USD",  "bybit": "NMRUSDT"},
+    "RLC":  {"name": "iExec RLC",     "binance": "RLCUSDT",  "kraken": "RLCUSD",   "coinbase": "RLC-USD",  "bybit": "RLCUSDT"},
+    "SKL":  {"name": "SKALE",         "binance": "SKLUSDT",  "kraken": "SKLUSD",   "coinbase": "SKL-USD",  "bybit": "SKLUSDT"},
+    "LPT":  {"name": "Livepeer",      "binance": "LPTUSDT",  "kraken": "LPTUSD",   "coinbase": "LPT-USD",  "bybit": "LPTUSDT"},
+    "CTSI": {"name": "Cartesi",       "binance": "CTSIUSDT", "kraken": None,        "coinbase": "CTSI-USD", "bybit": "CTSIUSDT"},
+    "RAD":  {"name": "Radicle",       "binance": "RADUSDT",  "kraken": None,        "coinbase": "RAD-USD",  "bybit": "RADUSDT"},
+    "IDEX": {"name": "IDEX",          "binance": "IDEXUSDT", "kraken": None,        "coinbase": None,       "bybit": "IDEXUSDT"},
+    "DESO": {"name": "DeSo",          "binance": "DESOUSDT", "kraken": None,        "coinbase": None,       "bybit": "DESOUSDT"},
+    "MASK": {"name": "Mask Network",  "binance": "MASKUSDT", "kraken": "MASKUSD",  "coinbase": "MASK-USD", "bybit": "MASKUSDT"},
+    "BICO": {"name": "Biconomy",      "binance": "BICOUSDT", "kraken": None,        "coinbase": None,       "bybit": "BICOUSDT"},
+    "API3": {"name": "API3",          "binance": "API3USDT", "kraken": None,        "coinbase": None,       "bybit": "API3USDT"},
+    "OP":   {"name": "Optimism",      "binance": "OPUSDT",   "kraken": "OPUSD",    "coinbase": "OP-USD",   "bybit": "OPUSDT"},
+    "LOOKS":{"name": "LooksRare",     "binance": "LOOKSUSDT","kraken": None,        "coinbase": None,       "bybit": "LOOKSUSDT"},
+    "HIGH": {"name": "Highstreet",    "binance": "HIGHUSDT", "kraken": None,        "coinbase": None,       "bybit": "HIGHUSDT"},
+    "SPELL":{"name": "Spell Token",   "binance": "SPELLUSDT","kraken": None,        "coinbase": None,       "bybit": "SPELLUSDT"},
+    "SPA":  {"name": "Sperax",        "binance": "SPAUSDT",  "kraken": None,        "coinbase": None,       "bybit": "SPAUSDT"},
+    "CHESS":{"name": "Tranchess",     "binance": "CHESSUSDT","kraken": None,        "coinbase": None,       "bybit": "CHESSUSDT"},
+    "AXL":  {"name": "Axelar",        "binance": "AXLUSDT",  "kraken": None,        "coinbase": "AXL-USD",  "bybit": "AXLUSDT"},
+    "OSMO": {"name": "Osmosis",       "binance": "OSMOUSDT", "kraken": None,        "coinbase": "OSMO-USD", "bybit": "OSMOUSDT"},
+    "EVMOS":{"name": "Evmos",         "binance": "EVMOSUSDT","kraken": None,        "coinbase": None,       "bybit": "EVMOSUSDT"},
+    "KLAY": {"name": "Klaytn",        "binance": "KLAYUSDT", "kraken": None,        "coinbase": None,       "bybit": "KLAYUSDT"},
+    "METIS":{"name": "Metis",         "binance": "METISUSDT","kraken": None,        "coinbase": None,       "bybit": "METISUSDT"},
+    "BOBA": {"name": "Boba Network",  "binance": "BOBAUSDT", "kraken": None,        "coinbase": None,       "bybit": "BOBAUSDT"},
+    "CELR": {"name": "Celer Network", "binance": "CELRUSDT", "kraken": None,        "coinbase": None,       "bybit": "CELRUSDT"},
+    "SYS":  {"name": "Syscoin",       "binance": "SYSUSDT",  "kraken": None,        "coinbase": None,       "bybit": "SYSUSDT"},
+    "POLS": {"name": "Polkastarter",  "binance": "POLSUSDT", "kraken": None,        "coinbase": None,       "bybit": "POLSUSDT"},
+    "XEC":  {"name": "eCash",         "binance": "XECUSDT",  "kraken": None,        "coinbase": None,       "bybit": "XECUSDT"},
+    "TWT":  {"name": "Trust Wallet",  "binance": "TWTUSDT",  "kraken": None,        "coinbase": None,       "bybit": "TWTUSDT"},
+    "COMBO":{"name": "Furucombo",     "binance": "COMBOUSDT","kraken": None,        "coinbase": None,       "bybit": "COMBOUSDT"},
+    "GAS":  {"name": "Gas",           "binance": "GASUSDT",  "kraken": None,        "coinbase": None,       "bybit": "GASUSDT"},
+    "NULS": {"name": "Nuls",          "binance": "NULSUSDT", "kraken": None,        "coinbase": None,       "bybit": "NULSUSDT"},
+    "VIDT": {"name": "VIDT DAO",      "binance": "VIDTUSDT", "kraken": None,        "coinbase": None,       "bybit": "VIDTUSDT"},
+    "DATA": {"name": "Streamr",       "binance": "DATAUSDT", "kraken": None,        "coinbase": None,       "bybit": "DATAUSDT"},
+    "ORN":  {"name": "Orion Protocol","binance": "ORNUSDT",  "kraken": None,        "coinbase": None,       "bybit": "ORNUSDT"},
+    "TRIBE":{"name": "Tribe",         "binance": "TRIBEUSDT","kraken": None,        "coinbase": "TRIBE-USD","bybit": "TRIBEUSDT"},
+    "CLV":  {"name": "Clover Finance","binance": "CLVUSDT",  "kraken": None,        "coinbase": "CLV-USD",  "bybit": "CLVUSDT"},
+    "QI":   {"name": "BENQI",         "binance": "QIUSDT",   "kraken": None,        "coinbase": None,       "bybit": "QIUSDT"},
+    "LINA": {"name": "Linear Finance","binance": "LINAUSDT", "kraken": None,        "coinbase": None,       "bybit": "LINAUSDT"},
+    "SFP":  {"name": "SafePal",       "binance": "SFPUSDT",  "kraken": None,        "coinbase": None,       "bybit": "SFPUSDT"},
+    "XVGOLD":{"name":"XV Gold",       "binance": None,        "kraken": None,        "coinbase": None,       "bybit": None},
+    "XVG":  {"name": "Verge",         "binance": "XVGUSDT",  "kraken": None,        "coinbase": None,       "bybit": "XVGUSDT"},
+    "FIO":  {"name": "FIO Protocol",  "binance": "FIOUSDT",  "kraken": None,        "coinbase": None,       "bybit": "FIOUSDT"},
+    "WOO":  {"name": "WOO Network",   "binance": "WOOUSDT",  "kraken": None,        "coinbase": "WOO-USD",  "bybit": "WOOUSDT"},
+    "FLUX": {"name": "Flux",          "binance": "FLUXUSDT", "kraken": None,        "coinbase": None,       "bybit": "FLUXUSDT"},
+    "DUSK": {"name": "Dusk Network",  "binance": "DUSKUSDT", "kraken": None,        "coinbase": None,       "bybit": "DUSKUSDT"},
+    "PROM": {"name": "Prom",          "binance": "PROMUSDT", "kraken": None,        "coinbase": None,       "bybit": "PROMUSDT"},
+    "HARD": {"name": "HARD Protocol", "binance": "HARDUSDT", "kraken": None,        "coinbase": None,       "bybit": "HARDUSDT"},
+    "COCOS":{"name": "Cocos-BCX",     "binance": "COCOSUSDT","kraken": None,        "coinbase": None,       "bybit": "COCOSUSDT"},
+    "KSM":  {"name": "Kusama",        "binance": "KSMUSDT",  "kraken": "KSMUSD",   "coinbase": "KSM-USD",  "bybit": "KSMUSDT"},
+    "ATA":  {"name": "Automata",      "binance": "ATAUSDT",  "kraken": None,        "coinbase": None,       "bybit": "ATAUSDT"},
+    "AVA":  {"name": "Travala",       "binance": "AVAUSDT",  "kraken": None,        "coinbase": None,       "bybit": "AVAUSDT"},
+    "BEL":  {"name": "Bella Protocol","binance": "BELUSDT",  "kraken": None,        "coinbase": None,       "bybit": "BELUSDT"},
+    "WING": {"name": "Wing Finance",  "binance": "WINGUSDT", "kraken": None,        "coinbase": None,       "bybit": "WINGUSDT"},
+    "TRB":  {"name": "Tellor",        "binance": "TRBUSDT",  "kraken": "TRBUSD",   "coinbase": "TRB-USD",  "bybit": "TRBUSDT"},
+    "PERP": {"name": "Perpetual",     "binance": "PERPUSDT", "kraken": "PERPUSD",  "coinbase": "PERP-USD", "bybit": "PERPUSDT"},
+    "FARM": {"name": "Harvest Finance","binance":"FARMUSDT", "kraken": None,        "coinbase": None,       "bybit": "FARMUSDT"},
+    "BURGER":{"name":"BurgerSwap",    "binance":"BURGERUSDT","kraken": None,        "coinbase": None,       "bybit": "BURGERUSDT"},
+    "UNFI": {"name": "Unifi Protocol","binance": "UNFIUSDT", "kraken": None,        "coinbase": None,       "bybit": "UNFIUSDT"},
+    "OXT":  {"name": "Orchid",        "binance": "OXTUSDT",  "kraken": "OXTUSD",   "coinbase": "OXT-USD",  "bybit": "OXTUSDT"},
+    "POND": {"name": "Marlin",        "binance": "PONDUSDT", "kraken": None,        "coinbase": None,       "bybit": "PONDUSDT"},
+    "SRM":  {"name": "Serum",         "binance": "SRMUSDT",  "kraken": None,        "coinbase": None,       "bybit": "SRMUSDT"},
+    "MDX":  {"name": "Mdex",          "binance": "MDXUSDT",  "kraken": None,        "coinbase": None,       "bybit": "MDXUSDT"},
+    "DEGO": {"name": "Dego Finance",  "binance": "DEGOUSDT", "kraken": None,        "coinbase": None,       "bybit": "DEGOUSDT"},
+    "FOR":  {"name": "ForTube",       "binance": "FORUSDT",  "kraken": None,        "coinbase": None,       "bybit": "FORUSDT"},
+    "ALPHA":{"name": "Alpha Venture", "binance": "ALPHAUSDT","kraken": None,        "coinbase": None,       "bybit": "ALPHAUSDT"},
+    "GTC":  {"name": "Gitcoin",       "binance": "GTCUSDT",  "kraken": "GTCUSD",   "coinbase": "GTC-USD",  "bybit": "GTCUSDT"},
+    "ILA":  {"name": "Infinite Launch","binance":None,        "kraken": None,        "coinbase": None,       "bybit": None},
+    "FORTH":{"name": "Ampleforth Gov","binance": "FORTHUSDT","kraken": None,        "coinbase": "FORTH-USD","bybit": "FORTHUSDT"},
+    "RARE": {"name": "SuperRare",     "binance": "RAREUSDT", "kraken": None,        "coinbase": "RARE-USD", "bybit": "RAREUSDT"},
+    "BAKE": {"name": "BakeryToken",   "binance": "BAKEUSDT", "kraken": None,        "coinbase": None,       "bybit": "BAKEUSDT"},
+    "SLP":  {"name": "Smooth Love Potion","binance":"SLPUSDT","kraken":None,        "coinbase": None,       "bybit": "SLPUSDT"},
+    "TLM":  {"name": "Alien Worlds",  "binance": "TLMUSDT",  "kraken": None,        "coinbase": None,       "bybit": "TLMUSDT"},
+    "ALICE":{"name": "My Neighbor Alice","binance":"ALICEUSDT","kraken":None,       "coinbase": None,       "bybit": "ALICEUSDT"},
+    "MBOX": {"name": "Mobox",         "binance": "MBOXUSDT", "kraken": None,        "coinbase": None,       "bybit": "MBOXUSDT"},
+    "VOXEL":{"name": "Voxies",        "binance": "VOXELUSDT","kraken": None,        "coinbase": None,       "bybit": "VOXELUSDT"},
+    "PYR":  {"name": "Vulcan Forged", "binance": "PYRUSDT",  "kraken": None,        "coinbase": None,       "bybit": "PYRUSDT"},
+    "GHST": {"name": "Aavegotchi",    "binance": "GHSTUSDT", "kraken": None,        "coinbase": "GHST-USD", "bybit": "GHSTUSDT"},
+    "ERN":  {"name": "Ethernity",     "binance": "ERNUSDT",  "kraken": None,        "coinbase": None,       "bybit": "ERNUSDT"},
+    "HERO": {"name": "Metahero",      "binance": "HEROUSDT", "kraken": None,        "coinbase": None,       "bybit": "HEROUSDT"},
+    "DIVI": {"name": "Divi",          "binance": "DIVIUSDT", "kraken": None,        "coinbase": None,       "bybit": "DIVIUSDT"},
+    "PAXG": {"name": "PAX Gold",      "binance": "PAXGUSDT", "kraken": "PAXGUSD",  "coinbase": "PAXG-USD", "bybit": "PAXGUSDT"},
+    "XAUT": {"name": "Tether Gold",   "binance": None,        "kraken": None,        "coinbase": None,       "bybit": None},
+    "POND2":{"name": "Pond2",         "binance": None,        "kraken": None,        "coinbase": None,       "bybit": None},
+    "KNC":  {"name": "Kyber Network", "binance": "KNCUSDT",  "kraken": "KNCUSD",   "coinbase": "KNC-USD",  "bybit": "KNCUSDT"},
+    "BAL":  {"name": "Balancer",      "binance": "BALUSDT",  "kraken": "BALUSD",   "coinbase": "BAL-USD",  "bybit": "BALUSDT"},
+    "REP":  {"name": "Augur",         "binance": "REPUSDT",  "kraken": "REPUSD",   "coinbase": None,       "bybit": "REPUSDT"},
+    "UMA":  {"name": "UMA",           "binance": "UMAUSDT",  "kraken": "UMAUSD",   "coinbase": "UMA-USD",  "bybit": "UMAUSDT"},
+    "OGV":  {"name": "Origin DeFi Gov","binance":None,        "kraken": None,        "coinbase": None,       "bybit": None},
+    "LQTY": {"name": "Liquity",       "binance": "LQTYUSDT", "kraken": "LQTYUSD",  "coinbase": "LQTY-USD", "bybit": "LQTYUSDT"},
+    "FRAX": {"name": "Frax",          "binance": None,        "kraken": None,        "coinbase": "FRAX-USD", "bybit": None},
+    "FXS":  {"name": "Frax Share",    "binance": "FXSUSDT",  "kraken": "FXSUSD",   "coinbase": "FXS-USD",  "bybit": "FXSUSDT"},
+    "LUSD": {"name": "Liquity USD",   "binance": None,        "kraken": None,        "coinbase": "LUSD-USD", "bybit": None},
+    "ALBT": {"name": "AllianceBlock", "binance": "ALBTUSDT", "kraken": None,        "coinbase": None,       "bybit": "ALBTUSDT"},
+    "SXP":  {"name": "Solar",         "binance": "SXPUSDT",  "kraken": None,        "coinbase": None,       "bybit": "SXPUSDT"},
+    "COMET":{"name": "Comet",         "binance": None,        "kraken": None,        "coinbase": None,       "bybit": None},
+    "ACH":  {"name": "Alchemy Pay",   "binance": "ACHUSDT",  "kraken": None,        "coinbase": "ACH-USD",  "bybit": "ACHUSDT"},
+    "XNO":  {"name": "Nano",          "binance": "XNOUSDT",  "kraken": "NANOUSD",  "coinbase": None,       "bybit": "XNOUSDT"},
+    "POWR": {"name": "Power Ledger",  "binance": "POWRUSDT", "kraken": "POWRUSD",  "coinbase": "POWR-USD", "bybit": "POWRUSDT"},
+    "MLN":  {"name": "Enzyme",        "binance": "MLNUSDT",  "kraken": "MLNUSD",   "coinbase": "MLN-USD",  "bybit": "MLNUSDT"},
+    "DNT":  {"name": "district0x",    "binance": "DNTUSDT",  "kraken": "DNTUSD",   "coinbase": "DNT-USD",  "bybit": "DNTUSDT"},
+    "SUPER":{"name": "SuperVerse",    "binance": "SUPERUSDT","kraken": None,        "coinbase": None,       "bybit": "SUPERUSDT"},
+    "BADGER":{"name":"Badger DAO",    "binance":"BADGERUSDT","kraken": None,        "coinbase":"BADGER-USD","bybit": "BADGERUSDT"},
+    "BNT":  {"name": "Bancor",        "binance": "BNTUSDT",  "kraken": "BNTUSD",   "coinbase": "BNT-USD",  "bybit": "BNTUSDT"},
+    "INDEX":{"name": "Index Coop",    "binance": None,        "kraken": None,        "coinbase": "INDEX-USD","bybit": None},
+    "DPI":  {"name": "DeFi Pulse Index","binance":None,       "kraken": None,        "coinbase": "DPI-USD",  "bybit": None},
+    "MVI":  {"name": "Metaverse Index","binance":None,        "kraken": None,        "coinbase": "MVI-USD",  "bybit": None},
+    "JASMY":{"name": "JasmyCoin",     "binance": "JASMYUSDT","kraken": None,        "coinbase": "JASMY-USD","bybit": "JASMYUSDT"},
+    "ACA":  {"name": "Acala",         "binance": "ACAUSDT",  "kraken": None,        "coinbase": None,       "bybit": "ACAUSDT"},
+    "GLMR": {"name": "Moonbeam",      "binance": "GLMRUSDT", "kraken": None,        "coinbase": "GLMR-USD", "bybit": "GLMRUSDT"},
+    "MOVR": {"name": "Moonriver",     "binance": "MOVRUSDT", "kraken": None,        "coinbase": None,       "bybit": "MOVRUSDT"},
+    "ASTR": {"name": "Astar",         "binance": "ASTRUSDT", "kraken": None,        "coinbase": None,       "bybit": "ASTRUSDT"},
+    "BSW":  {"name": "Biswap",        "binance": "BSWUSDT",  "kraken": None,        "coinbase": None,       "bybit": "BSWUSDT"},
+    "LAZIO":{"name": "Lazio Fan Token","binance":"LAZIOUSDT","kraken": None,        "coinbase": None,       "bybit": "LAZIOUSDT"},
+    "PORTO":{"name": "Porto Fan Token","binance":"PORTOUSDT","kraken": None,        "coinbase": None,       "bybit": "PORTOUSDT"},
+    "SANTOS":{"name":"Santos FC",     "binance":"SANTOSUSDT","kraken":None,         "coinbase": None,       "bybit": "SANTOSUSDT"},
+    "PSG":  {"name": "PSG Fan Token", "binance": "PSGUSDT",  "kraken": None,        "coinbase": None,       "bybit": "PSGUSDT"},
+    "ATM":  {"name": "Atletico Fan",  "binance": "ATMUSDT",  "kraken": None,        "coinbase": None,       "bybit": "ATMUSDT"},
+    "CITY": {"name": "ManCity Fan",   "binance": "CITYUSDT", "kraken": None,        "coinbase": None,       "bybit": "CITYUSDT"},
+    "BAR":  {"name": "FC Barcelona",  "binance": "BARUSDT",  "kraken": None,        "coinbase": None,       "bybit": "BARUSDT"},
+    "JUV":  {"name": "Juventus Fan",  "binance": "JUVUSDT",  "kraken": None,        "coinbase": None,       "bybit": "JUVUSDT"},
 }
 
 CRYPTO_EXCHANGE_LINKS = {
@@ -70,11 +269,42 @@ CRYPTO_EXCHANGE_LINKS = {
 POLYGON_API_KEY = "AHDx47kyKxiVlcwWs5jP1WjiY2ExUPkC"
 
 TOP_STOCKS = [
+    # Top 50 (original)
     "AAPL","MSFT","NVDA","AMZN","GOOGL","META","TSLA","BRK-B","JPM","V",
     "WMT","XOM","UNH","LLY","MA","JNJ","PG","HD","MRK","COST",
     "ABBV","CVX","BAC","KO","PEP","ADBE","CRM","NFLX","AMD","TMO",
     "ACN","MCD","CSCO","ABT","LIN","DHR","WFC","TXN","NEE","PM",
-    "RTX","AMGN","LOW","ORCL","UPS","INTC","QCOM","CAT","NOW","INTU"
+    "RTX","AMGN","LOW","ORCL","UPS","INTC","QCOM","CAT","NOW","INTU",
+    # Next 50
+    "SPGI","AXP","GS","BLK","MS","C","USB","PNC","SCHW","CB",
+    "MMC","AON","TRV","ALL","PRU","MET","AFL","HIG","UNM","LNC",
+    "DE","EMR","HON","GE","MMM","ITW","PH","ROK","ETN","DOV",
+    "FDX","DAL","UAL","LUV","AAL","UBER","LYFT","ABNB","BKNG","EXPE",
+    "AMZN","TGT","DG","DLTR","FIVE","BBY","KR","SYY","MKC","HRL",
+    # Next 50
+    "PFE","BMY","GILD","BIIB","REGN","VRTX","MRNA","ALNY","INCY","SGEN",
+    "MDT","BSX","EW","SYK","ZBH","BAX","BDX","ZTS","IDXX","ALGN",
+    "AMT","PLD","CCI","EQIX","PSA","EXR","AVB","EQR","MAA","UDR",
+    "NEE","DUK","SO","D","AEP","EXC","XEL","WEC","ES","PPL",
+    "CVS","MCK","CAH","ABC","WBA","RAD","RHHBY","NVO","SNY","AZN",
+    # Next 50
+    "SNOW","PLTR","DDOG","NET","CRWD","ZS","OKTA","MDB","GTLB","HUBS",
+    "TWLO","ZM","DOCU","BOX","WORK","PATH","APPN","VCRA","CDAY","PEGA",
+    "SHOP","SQ","PYPL","AFRM","COIN","HOOD","SOFI","UPST","LC","OPFI",
+    "RIVN","LCID","NIO","XPEV","LI","FSR","GOEV","WKHS","RIDE","SOLO",
+    "RBLX","U","EA","TTWO","ATVI","NTES","BILI","IQ","TME","HUYA",
+    # Next 50
+    "DIS","CMCSA","PARA","WBD","FOXA","NYT","NWSA","IPG","OMC","WPP",
+    "SPOT","SNAP","PINS","MTCH","BMBL","YELP","ANGI","IAC","CARS","CDK",
+    "CHTR","T","VZ","TMUS","LUMN","DISH","SIRI","IACI","GTN","SSP",
+    "GS","MS","BX","KKR","APO","CG","ARES","OWL","STEP","BLUE",
+    "WM","RSG","CWST","CLH","GFL","SRCL","HCCI","NREO","FNV","GOLD",
+    # Next 50
+    "FCX","NEM","AA","X","NUE","STLD","CLF","RS","CMC","ATI",
+    "LNG","COP","PSX","VLO","MPC","HES","DVN","FANG","PXD","OXY",
+    "SLB","HAL","BKR","NOV","HP","RIG","VAL","NR","PUMP","LBRT",
+    "JPM","BAC","WFC","C","USB","PNC","TFC","RF","CFG","HBAN",
+    "GS","MS","SCHW","STT","BK","NTRS","FIS","FISV","GPN","WEX",
 ]
 
 # ─── FOREX ────────────────────────────────────────────────
@@ -206,7 +436,66 @@ STOCK_NAMES = {
     "NEE":"NextEra Energy","PM":"Philip Morris","RTX":"RTX Corp.","AMGN":"Amgen Inc.",
     "LOW":"Lowe's Companies","ORCL":"Oracle Corp.","UPS":"United Parcel Service",
     "INTC":"Intel Corp.","QCOM":"Qualcomm Inc.","CAT":"Caterpillar Inc.",
-    "NOW":"ServiceNow Inc.","INTU":"Intuit Inc."
+    "NOW":"ServiceNow Inc.","INTU":"Intuit Inc.",
+    "SPGI":"S&P Global","AXP":"American Express","GS":"Goldman Sachs","BLK":"BlackRock",
+    "MS":"Morgan Stanley","C":"Citigroup","USB":"US Bancorp","PNC":"PNC Financial",
+    "SCHW":"Charles Schwab","CB":"Chubb Ltd.","MMC":"Marsh McLennan","AON":"Aon plc",
+    "TRV":"Travelers Companies","ALL":"Allstate Corp.","PRU":"Prudential Financial",
+    "MET":"MetLife","AFL":"Aflac","HIG":"Hartford Financial","UNM":"Unum Group","LNC":"Lincoln National",
+    "DE":"John Deere","EMR":"Emerson Electric","HON":"Honeywell","GE":"GE Aerospace",
+    "MMM":"3M Company","ITW":"Illinois Tool Works","PH":"Parker Hannifin","ROK":"Rockwell Automation",
+    "ETN":"Eaton Corp.","DOV":"Dover Corp.","FDX":"FedEx Corp.","DAL":"Delta Air Lines",
+    "UAL":"United Airlines","LUV":"Southwest Airlines","AAL":"American Airlines",
+    "UBER":"Uber Technologies","LYFT":"Lyft Inc.","ABNB":"Airbnb Inc.","BKNG":"Booking Holdings","EXPE":"Expedia Group",
+    "TGT":"Target Corp.","DG":"Dollar General","DLTR":"Dollar Tree","FIVE":"Five Below",
+    "BBY":"Best Buy","KR":"Kroger Co.","SYY":"Sysco Corp.","MKC":"McCormick & Co.","HRL":"Hormel Foods",
+    "PFE":"Pfizer Inc.","BMY":"Bristol-Myers Squibb","GILD":"Gilead Sciences","BIIB":"Biogen Inc.",
+    "REGN":"Regeneron Pharma","VRTX":"Vertex Pharma","MRNA":"Moderna Inc.","ALNY":"Alnylam Pharma",
+    "INCY":"Incyte Corp.","SGEN":"Seagen Inc.","MDT":"Medtronic plc","BSX":"Boston Scientific",
+    "EW":"Edwards Lifesciences","SYK":"Stryker Corp.","ZBH":"Zimmer Biomet","BAX":"Baxter International",
+    "BDX":"Becton Dickinson","ZTS":"Zoetis Inc.","IDXX":"IDEXX Laboratories","ALGN":"Align Technology",
+    "AMT":"American Tower","PLD":"Prologis","CCI":"Crown Castle","EQIX":"Equinix Inc.",
+    "PSA":"Public Storage","EXR":"Extra Space Storage","AVB":"AvalonBay Communities",
+    "EQR":"Equity Residential","MAA":"Mid-America Apartment","UDR":"UDR Inc.",
+    "DUK":"Duke Energy","SO":"Southern Company","D":"Dominion Energy","AEP":"American Electric Power",
+    "EXC":"Exelon Corp.","XEL":"Xcel Energy","WEC":"WEC Energy","ES":"Eversource Energy","PPL":"PPL Corp.",
+    "CVS":"CVS Health","MCK":"McKesson Corp.","CAH":"Cardinal Health","ABC":"AmerisourceBergen",
+    "WBA":"Walgreens Boots","RAD":"Rite Aid","NVO":"Novo Nordisk","SNY":"Sanofi","AZN":"AstraZeneca",
+    "SNOW":"Snowflake Inc.","PLTR":"Palantir Technologies","DDOG":"Datadog Inc.","NET":"Cloudflare Inc.",
+    "CRWD":"CrowdStrike","ZS":"Zscaler Inc.","OKTA":"Okta Inc.","MDB":"MongoDB Inc.",
+    "GTLB":"GitLab Inc.","HUBS":"HubSpot Inc.","TWLO":"Twilio Inc.","ZM":"Zoom Video",
+    "DOCU":"DocuSign Inc.","BOX":"Box Inc.","PATH":"UiPath Inc.","APPN":"Appian Corp.",
+    "SHOP":"Shopify Inc.","SQ":"Block Inc.","PYPL":"PayPal Holdings","AFRM":"Affirm Holdings",
+    "COIN":"Coinbase Global","HOOD":"Robinhood Markets","SOFI":"SoFi Technologies",
+    "UPST":"Upstart Holdings","LC":"LendingClub","OPFI":"OppFi Inc.",
+    "RIVN":"Rivian Automotive","LCID":"Lucid Group","NIO":"NIO Inc.","XPEV":"XPeng Inc.",
+    "LI":"Li Auto","FSR":"Fisker Inc.","GOEV":"Canoo Inc.","WKHS":"Workhorse Group",
+    "RBLX":"Roblox Corp.","U":"Unity Software","EA":"Electronic Arts","TTWO":"Take-Two Interactive",
+    "ATVI":"Activision Blizzard","NTES":"NetEase Inc.","BILI":"Bilibili Inc.","IQ":"iQIYI Inc.",
+    "TME":"Tencent Music","HUYA":"Huya Inc.","DIS":"Walt Disney Co.","CMCSA":"Comcast Corp.",
+    "PARA":"Paramount Global","WBD":"Warner Bros Discovery","FOXA":"Fox Corp.",
+    "NYT":"New York Times","NWSA":"News Corp","IPG":"Interpublic Group","OMC":"Omnicom Group",
+    "SPOT":"Spotify Technology","SNAP":"Snap Inc.","PINS":"Pinterest Inc.","MTCH":"Match Group",
+    "BMBL":"Bumble Inc.","YELP":"Yelp Inc.","ANGI":"Angi Inc.","IAC":"IAC Inc.",
+    "CHTR":"Charter Communications","T":"AT&T Inc.","VZ":"Verizon Communications",
+    "TMUS":"T-Mobile US","LUMN":"Lumen Technologies","DISH":"Dish Network","SIRI":"Sirius XM",
+    "BX":"Blackstone Inc.","KKR":"KKR & Co.","APO":"Apollo Global","CG":"Carlyle Group",
+    "ARES":"Ares Management","OWL":"Blue Owl Capital",
+    "WM":"Waste Management","RSG":"Republic Services","CWST":"Casella Waste","CLH":"Clean Harbors",
+    "GOLD":"Barrick Gold","FNV":"Franco-Nevada","FCX":"Freeport-McMoRan","NEM":"Newmont Corp.",
+    "AA":"Alcoa Corp.","X":"US Steel","NUE":"Nucor Corp.","STLD":"Steel Dynamics",
+    "CLF":"Cleveland-Cliffs","RS":"Reliance Steel","CMC":"Commercial Metals","ATI":"ATI Inc.",
+    "LNG":"Cheniere Energy","COP":"ConocoPhillips","PSX":"Phillips 66","VLO":"Valero Energy",
+    "MPC":"Marathon Petroleum","HES":"Hess Corp.","DVN":"Devon Energy","FANG":"Diamondback Energy",
+    "PXD":"Pioneer Natural","OXY":"Occidental Petroleum","SLB":"SLB","HAL":"Halliburton",
+    "BKR":"Baker Hughes","NOV":"NOV Inc.","HP":"Helmerich & Payne",
+    "TFC":"Truist Financial","RF":"Regions Financial","CFG":"Citizens Financial","HBAN":"Huntington Bancshares",
+    "STT":"State Street","BK":"Bank of New York","NTRS":"Northern Trust",
+    "FIS":"Fidelity National Info","FISV":"Fiserv Inc.","GPN":"Global Payments","WEX":"WEX Inc.",
+    "RHHBY":"Roche Holding","GFL":"GFL Environmental","SRCL":"Stericycle","HCCI":"Heritage Crystal Clean",
+    "LBRT":"Liberty Oilfield","RIG":"Transocean","VAL":"Valaris","NR":"Newpark Resources",
+    "CARS":"Cars.com","CDK":"CDK Global","GTN":"Gray Television","SSP":"E.W. Scripps",
+    "IACI":"IAC","STEP":"StepStone Group","BLUE":"bluebird bio","PUMP":"ProPetro Holding",
 }
 
 def get_stock_prices():
@@ -447,7 +736,7 @@ body{font-family:'Inter',sans-serif;background:#0a0a0a;color:#e0e0e0;min-height:
 .tab-content{display:none}
 .tab-content.active{display:block}
 .container{padding:28px 40px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(560px,1fr));gap:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:12px}
 .card{background:#0d0d0d;border:1px solid #1c1c1c;border-radius:14px;overflow:hidden;transition:border-color .2s}
 .card:hover{border-color:#2a2a2a}
 .card-header{padding:18px 22px 14px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid #141414}
@@ -524,6 +813,10 @@ body{font-family:'Inter',sans-serif;background:#0a0a0a;color:#e0e0e0;min-height:
 .sort-label{font-size:.75em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:500}
 .sort-select{background:#0d0d0d;border:1px solid #1c1c1c;color:#aaa;padding:6px 12px;border-radius:7px;font-size:.8em;font-family:inherit;cursor:pointer;outline:none;transition:border-color .2s}
 .sort-select:hover,.sort-select:focus{border-color:#00ff88;color:#fff}
+.search-input{background:#0d0d0d;border:1px solid #1c1c1c;color:#e0e0e0;padding:7px 14px;border-radius:7px;font-size:.85em;font-family:inherit;outline:none;transition:border-color .2s;width:220px}
+.search-input:focus{border-color:#00ff88}
+.search-input::placeholder{color:#333}
+.controls-bar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
 .modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.93);z-index:999;align-items:center;justify-content:center;padding:30px}
 .modal-bg.open{display:flex}
 .modal-box{background:#0d0d0d;border:1px solid #1c1c1c;border-radius:16px;padding:26px;max-width:660px;width:100%;position:relative}
@@ -821,11 +1114,95 @@ function sortItems(arr, sortBy) {
 function makeSortBar(tabKey, extraOpts) {
     var id = 'sort-sel-' + tabKey;
     var opts = '<option value="default">Default</option><option value="alpha">A-Z</option><option value="change-hl">Change High-Low</option><option value="change-lh">Change Low-High</option><option value="price-hl">Price High-Low</option><option value="price-lh">Price Low-High</option>' + (extraOpts || '');
-    var bar = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">';
-    bar += '<span style="font-size:.75em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:500">Sort</span>';
-    bar += '<select id="' + id + '" class="sort-select-ctrl" data-tab="' + tabKey + '" style="background:#0d0d0d;border:1px solid #1c1c1c;color:#aaa;padding:6px 12px;border-radius:7px;font-size:.8em;font-family:inherit;cursor:pointer;outline:none">' + opts + '</select>';
+    var bar = '<div class="controls-bar">';
+    bar += '<span class="sort-label">Sort</span>';
+    bar += '<select id="' + id + '" class="sort-select-ctrl sort-select" data-tab="' + tabKey + '">' + opts + '</select>';
+    bar += '<input class="search-input search-ctrl" data-tab="' + tabKey + '" placeholder="Search ticker..." type="text" id="search-' + tabKey + '">';
+    bar += '<span id="count-' + tabKey + '" style="font-size:.75em;color:#333;margin-left:4px"></span>';
     bar += '</div>';
     return bar;
+}
+
+// Virtual scroll state
+var vState = {};
+
+function initVirtualScroll(tabKey, items, renderFn) {
+    var PAGE = 30;
+    vState[tabKey] = {items: items, page: 1, renderFn: renderFn, PAGE: PAGE};
+    var gridId = tabKey + '-grid';
+    var grid = document.getElementById(gridId);
+    if(!grid) return;
+    renderVirtualPage(tabKey);
+    var sentinel = document.getElementById('sentinel-' + tabKey);
+    if(!sentinel) return;
+    var obs = new IntersectionObserver(function(entries) {
+        if(entries[0].isIntersecting) loadMoreVirtual(tabKey);
+    }, {threshold: 0.1});
+    obs.observe(sentinel);
+    vState[tabKey].observer = obs;
+}
+
+function renderVirtualPage(tabKey) {
+    var s = vState[tabKey];
+    if(!s) return;
+    var grid = document.getElementById(tabKey + '-grid');
+    if(!grid) return;
+    var visible = s.items.slice(0, s.page * s.PAGE);
+    grid.innerHTML = visible.map(s.renderFn).join('');
+    var countEl = document.getElementById('count-' + tabKey);
+    if(countEl) countEl.textContent = visible.length + ' of ' + s.items.length;
+    wireCardEvents(tabKey);
+}
+
+function loadMoreVirtual(tabKey) {
+    var s = vState[tabKey];
+    if(!s) return;
+    if(s.page * s.PAGE >= s.items.length) return;
+    s.page++;
+    renderVirtualPage(tabKey);
+}
+
+function filterItems(tabKey, query) {
+    var s = vState[tabKey];
+    if(!s) return;
+    var q = query.toLowerCase().trim();
+    s.items = s.allItems.filter(function(item) {
+        return !q || item.sym.toLowerCase().includes(q) || (item.name||'').toLowerCase().includes(q);
+    });
+    s.page = 1;
+    renderVirtualPage(tabKey);
+}
+
+function wireCardEvents(tabKey) {
+    // Star buttons
+    document.querySelectorAll('#' + tabKey + '-grid .star-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            toggleFav(this.dataset.key, this.dataset.sym);
+            if(tabKey === 'crypto-tab') { vState['crypto-tab'].allItems = vState['crypto-tab'].allItems; renderCrypto(cryptoData); }
+            if(tabKey === 'stocks-tab') renderStocks(stockData.raw);
+        });
+    });
+    // Chart buttons
+    document.querySelectorAll('#' + tabKey + '-grid .chart-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var type = this.dataset.type || 'stocks';
+            var sym = this.dataset.coin || this.dataset.sym;
+            var title = this.dataset.title || sym;
+            openModal(type, sym, title);
+        });
+    });
+    // Stock chart buttons
+    document.querySelectorAll('#' + tabKey + '-grid .stock-chart-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var sym = this.dataset.sym, title = this.dataset.title;
+            document.getElementById('modal-title').textContent = title + ' - Intraday Chart';
+            document.getElementById('modal-chart').innerHTML = '<div class="ld" style="text-align:center;padding-top:70px">Loading...</div>';
+            document.getElementById('chart-modal').classList.add('open');
+            var ckey = 'stocks-' + sym;
+            if(chartCache[ckey]) { setTimeout(function(){drawChart('modal-chart',chartCache[ckey],'modal-tooltip',false);},50); }
+            else { fetch('/api/stocks/chart/'+sym).then(function(r){return r.json();}).then(function(pts){chartCache[ckey]=pts;drawChart('modal-chart',pts,'modal-tooltip',false);}).catch(function(){document.getElementById('modal-chart').innerHTML='<div class="no-chart">Chart unavailable</div>';}); }
+        });
+    });
 }
 
 function handleSort(tabKey) {
@@ -833,14 +1210,23 @@ function handleSort(tabKey) {
     if(!sel) return;
     if(tabKey === 'crypto') { cryptoSort = sel.value; renderCrypto(cryptoData); }
     if(tabKey === 'stocks') { stockSort = sel.value; renderStocks(stockData.raw); }
+    if(tabKey === 'crypto-tab') {
+        cryptoSort = sel.value;
+        var s = vState['crypto-tab'];
+        if(s) { s.allItems = sortItems(s.allItems, cryptoSort); s.page=1; renderVirtualPage('crypto-tab'); }
+    }
+    if(tabKey === 'stocks-tab') {
+        stockSort = sel.value;
+        var s = vState['stocks-tab'];
+        if(s) { s.allItems = sortItems(s.allItems, stockSort); s.page=1; renderVirtualPage('stocks-tab'); }
+    }
 }
 
 function wireSortBars() {
     document.querySelectorAll('.sort-select-ctrl').forEach(function(sel) {
         sel.addEventListener('change', function() { handleSort(this.dataset.tab); });
     });
-}
-function isFav(key, sym) { return getFavs(key).indexOf(sym) >= 0; }
+}function isFav(key, sym) { return getFavs(key).indexOf(sym) >= 0; }
 
 // --- CRYPTO ---
 function renderCrypto(data){
@@ -853,12 +1239,13 @@ function renderCrypto(data){
         var minP=Math.min.apply(null,prices),maxP=Math.max.apply(null,prices);
         var avg=prices.reduce(function(a,b){return a+b;},0)/prices.length;
         var spread=maxP>minP?((maxP-minP)/minP*100):0;
-        arr.push({sym:sym,price:avg,chg:c.change24h||0,fav:favs.indexOf(sym)>=0,spread:spread,data:c,ex:ex,keys:keys,minP:minP,maxP:maxP});
+        arr.push({sym:sym,name:c.name,price:avg,chg:c.change24h||0,fav:favs.indexOf(sym)>=0,spread:spread,data:c,ex:ex,keys:keys,minP:minP,maxP:maxP});
     });
     arr=sortItems(arr,cryptoSort);
-    var h=makeSortBar('crypto','<option value="spread-hl">Spread: High to Low</option>');
-    h+='<div class="grid">';
-    arr.forEach(function(item){
+    // Favorites first
+    arr.sort(function(a,b){ if(a.fav&&!b.fav)return -1; if(b.fav&&!a.fav)return 1; return 0; });
+
+    function renderCard(item) {
         var sym=item.sym,c=item.data,ex=item.ex,keys=item.keys,minP=item.minP,maxP=item.maxP;
         var spread=item.spread.toFixed(4);
         var bestBuy=keys[Object.values(ex).indexOf(minP)]||keys[0];
@@ -866,7 +1253,7 @@ function renderCrypto(data){
         var chg=item.chg;
         var cwId='cw-'+sym,ttId='tt-'+sym;
         var fav=item.fav;
-        h+='<div class="card">';
+        var h='<div class="card">';
         h+='<div class="card-header">';
         h+='<div class="card-left"><div class="card-ticker"><span class="card-symbol">'+sym+'</span><button class="chart-btn" data-type="crypto" data-coin="'+sym+'" data-title="'+c.name+' ('+sym+')">24h</button><button class="star-btn'+(fav?' active':'')+'" data-key="crypto-favs" data-sym="'+sym+'" title="Favorite">'+(fav?'&#11088;':'&#9734;')+'</button></div><div class="card-name">'+c.name+'</div></div>';
         h+='<div class="card-right"><div class="card-price">'+fmt(item.price)+'</div><div class="card-change '+changeClass(chg)+'">'+changeStr(chg)+'</div></div>';
@@ -890,23 +1277,36 @@ function renderCrypto(data){
             h+='<td>'+(isBest?'<span class="badge badge-buy">BEST BUY</span>':isHigh?'<span class="badge badge-sell">HIGHEST</span>':'')+'</td></tr>';
         });
         h+='</table></div>';
-    });
-    h+='</div>';
+        return h;
+    }
+
+    var h=makeSortBar('crypto','<option value="spread-hl">Spread: High to Low</option>');
+    h+='<div id="crypto-tab-grid" class="grid"></div>';
+    h+='<div id="sentinel-crypto-tab" style="height:40px"></div>';
     document.getElementById('crypto-data').innerHTML=h;
-    arr.forEach(function(item){
-        if(item.keys.length) loadChartInto('crypto',item.sym,'cw-'+item.sym,'tt-'+item.sym);
-    });
-    document.querySelectorAll('#crypto-data .chart-btn').forEach(function(btn){
-        btn.addEventListener('click',function(){openModal('crypto',this.dataset.coin,this.dataset.title);});
-    });
-    document.querySelectorAll('#crypto-data .star-btn').forEach(function(btn){
-        btn.addEventListener('click',function(){
-            var key=this.dataset.key, sym=this.dataset.sym;
-            var nowFav=toggleFav(key,sym);
-            renderCrypto(cryptoData);
+
+    if(!vState['crypto-tab']) vState['crypto-tab']={};
+    vState['crypto-tab'].allItems=arr;
+    initVirtualScroll('crypto-tab', arr, renderCard);
+
+    document.getElementById('search-crypto').addEventListener('input',function(){
+        filterItems('crypto-tab',this.value);
+        // reload charts for visible cards
+        document.querySelectorAll('#crypto-tab-grid .chart-wrap').forEach(function(wrap){
+            var sym=wrap.id.replace('cw-','');
+            loadChartInto('crypto',sym,wrap.id,'tt-'+sym);
         });
     });
+
     wireSortBars();
+
+    // Load charts for first page
+    setTimeout(function(){
+        document.querySelectorAll('#crypto-tab-grid .chart-wrap').forEach(function(wrap){
+            var sym=wrap.id.replace('cw-','');
+            loadChartInto('crypto',sym,wrap.id,'tt-'+sym);
+        });
+    },100);
 }
 
 function loadCrypto(){
@@ -932,20 +1332,19 @@ function renderStocks(data){
     var favs=getFavs('stocks-favs');
     var arr=Object.keys(data).map(function(sym){
         var s=data[sym];
-        return {sym:sym,price:s.price,chg:s.change24h||0,fav:favs.indexOf(sym)>=0,data:s};
+        return {sym:sym,name:s.name,price:s.price,chg:s.change24h||0,fav:favs.indexOf(sym)>=0,data:s};
     });
     arr=sortItems(arr,stockSort);
-    var h=makeSortBar('stocks');
-    h+='<div class="section-header">Top 50 Stocks - Prev day close - Polygon.io - '+arr.length+' loaded</div>';
-    h+='<div class="grid">';
-    arr.forEach(function(item){
+    arr.sort(function(a,b){ if(a.fav&&!b.fav)return -1; if(b.fav&&!a.fav)return 1; return 0; });
+
+    function renderCard(item) {
         var sym=item.sym,s=item.data;
         var chg=item.chg;
         var cwId='scw-'+sym.replace(/[^a-z0-9]/gi,'');
         var ttId='stt-'+sym.replace(/[^a-z0-9]/gi,'');
         var sc=chg>2?'green':chg<-2?'red':'yellow';
         var fav=item.fav;
-        h+='<div class="card">';
+        var h='<div class="card">';
         h+='<div class="card-header">';
         h+='<div class="card-left"><div class="card-ticker"><span class="card-symbol">'+sym+'</span><button class="chart-btn stock-chart-btn" data-sym="'+sym+'" data-title="'+s.name+' ('+sym+')">1d</button><button class="star-btn'+(fav?' active':'')+'" data-key="stocks-favs" data-sym="'+sym+'" title="Favorite">'+(fav?'&#11088;':'&#9734;')+'</button></div><div class="card-name">'+s.name+'</div></div>';
         h+='<div class="card-right"><div class="card-price">'+fmt(s.price)+'</div><div class="card-change '+changeClass(chg)+'">'+changeStr(chg)+'</div></div>';
@@ -961,38 +1360,25 @@ function renderStocks(data){
         h+='<div class="stat"><div class="stat-label">VWAP</div><div class="stat-value gray">'+(s.vwap?fmt(s.vwap):'-')+'</div></div>';
         h+='<div class="stat"><div class="stat-label">Day Move</div><div class="stat-value '+sc+'">'+changeStr(chg)+'</div></div>';
         h+='<div class="stat"><div class="stat-label">Source</div><div class="stat-value gray">Polygon.io</div></div>';
-        h+='<div class="stat"><div class="stat-label">Delay</div><div class="stat-value gray">15-min</div></div>';
+        h+='<div class="stat"><div class="stat-label">Prev Close</div><div class="stat-value gray">EOD</div></div>';
         h+='</div>';
         h+='</div>';
-    });
-    h+='</div>';
+        return h;
+    }
+
+    var h=makeSortBar('stocks');
+    h+='<div id="stocks-tab-grid" class="grid"></div>';
+    h+='<div id="sentinel-stocks-tab" style="height:40px"></div>';
     document.getElementById('stocks-data').innerHTML=h;
-    arr.forEach(function(item){
-        var sym=item.sym;
-        var cwId='scw-'+sym.replace(/[^a-z0-9]/gi,'');
-        var ttId='stt-'+sym.replace(/[^a-z0-9]/gi,'');
-        var ckey='stocks-'+sym;
-        if(chartCache[ckey]){drawChart(cwId,chartCache[ckey],ttId,false);}
-        else{fetch('/api/stocks/chart/'+sym).then(function(r){return r.json();}).then(function(pts){chartCache[ckey]=pts;drawChart(cwId,pts,ttId,false);}).catch(function(){});}
+
+    if(!vState['stocks-tab']) vState['stocks-tab']={};
+    vState['stocks-tab'].allItems=arr;
+    initVirtualScroll('stocks-tab', arr, renderCard);
+
+    document.getElementById('search-stocks').addEventListener('input',function(){
+        filterItems('stocks-tab',this.value);
     });
-    document.querySelectorAll('.stock-chart-btn').forEach(function(btn){
-        btn.addEventListener('click',function(){
-            var sym=this.dataset.sym,title=this.dataset.title;
-            document.getElementById('modal-title').textContent=title+' - Intraday Chart';
-            document.getElementById('modal-chart').innerHTML='<div class="ld" style="text-align:center;padding-top:70px">Loading...</div>';
-            document.getElementById('chart-modal').classList.add('open');
-            var ckey='stocks-'+sym;
-            if(chartCache[ckey]){setTimeout(function(){drawChart('modal-chart',chartCache[ckey],'modal-tooltip',false);},50);}
-            else{fetch('/api/stocks/chart/'+sym).then(function(r){return r.json();}).then(function(pts){chartCache[ckey]=pts;drawChart('modal-chart',pts,'modal-tooltip',false);}).catch(function(){document.getElementById('modal-chart').innerHTML='<div class="no-chart">Chart unavailable</div>';});}
-        });
-    });
-    document.querySelectorAll('#stocks-data .star-btn').forEach(function(btn){
-        btn.addEventListener('click',function(){
-            var key=this.dataset.key, sym=this.dataset.sym;
-            toggleFav(key,sym);
-            renderStocks(stockData.raw);
-        });
-    });
+
     wireSortBars();
     stockData.loaded=true;
     stockData.raw=data;
