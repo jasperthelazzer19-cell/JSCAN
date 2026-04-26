@@ -211,7 +211,7 @@ STOCK_NAMES = {
 
 def get_stock_prices():
     result = {}
-    # Use grouped daily bars — one call, all tickers, free tier compatible
+    # Use grouped daily bars - one call, all tickers, free tier compatible
     # Gets previous trading day data for all US stocks
     try:
         # Find the most recent trading day (skip weekends)
@@ -587,7 +587,7 @@ function loadChartInto(type,sym,wrapId,tooltipId){
 }
 
 function openModal(type,sym,title){
-    document.getElementById('modal-title').textContent=title+' — 24h Chart';
+    document.getElementById('modal-title').textContent=title+' - 24h Chart';
     document.getElementById('modal-chart').innerHTML='<div class="ld" style="text-align:center;padding-top:70px">Loading...</div>';
     document.getElementById('chart-modal').classList.add('open');
     var ckey=type+'-'+sym;
@@ -695,7 +695,7 @@ function renderCrypto(data){
             var p=ex[e],diff=((p-minP)/minP*100).toFixed(4);
             var isBest=p===minP,isHigh=p===maxP&&maxP!==minP;
             var link=CRYPTO_LINKS[e]||'#';
-            h+='<tr><td><a href="'+link+'" target="_blank" class="ex-link">'+e+' ↗</a></td>';
+            h+='<tr><td><a href="'+link+'" target="_blank" class="ex-link">'+e+'  ^</a></td>';
             h+='<td class="ex-price">'+fmt(p)+'</td>';
             h+='<td class="'+(parseFloat(diff)>0?'diff-pos':'diff-zero')+'">'+(parseFloat(diff)>0?'+':'')+diff+'%</td>';
             h+='<td>'+(isBest?'<span class="badge badge-buy">BEST BUY</span>':isHigh?'<span class="badge badge-sell">HIGHEST</span>':'')+'</td></tr>';
@@ -728,7 +728,7 @@ function loadCrypto(){
 
 // --- STOCKS ---
 function fmtVol(v){
-    if(!v||v===0) return '—';
+    if(!v||v===0) return '-';
     if(v>=1e9) return (v/1e9).toFixed(2)+'B';
     if(v>=1e6) return (v/1e6).toFixed(2)+'M';
     if(v>=1e3) return (v/1e3).toFixed(1)+'K';
@@ -771,7 +771,7 @@ function renderStocks(data){
         h+='</div>';
         h+='<div class="chart-section"><div class="section-label">Intraday trend (5-min)</div><div class="chart-wrap" id="'+cwId+'"></div><div class="tooltip" id="'+ttId+'"><div class="tooltip-price"></div><div class="tooltip-time"></div></div></div>';
         h+='<div class="stats-bar" style="border-top:1px solid #141414;border-bottom:none">';
-        h+='<div class="stat"><div class="stat-label">VWAP</div><div class="stat-value gray">'+(s.vwap?fmt(s.vwap):'—')+'</div></div>';
+        h+='<div class="stat"><div class="stat-label">VWAP</div><div class="stat-value gray">'+(s.vwap?fmt(s.vwap):'-')+'</div></div>';
         h+='<div class="stat"><div class="stat-label">Day Move</div><div class="stat-value '+sc+'">'+changeStr(chg)+'</div></div>';
         h+='<div class="stat"><div class="stat-label">Source</div><div class="stat-value gray">Polygon.io</div></div>';
         h+='<div class="stat"><div class="stat-label">Delay</div><div class="stat-value gray">15-min</div></div>';
@@ -793,7 +793,7 @@ function renderStocks(data){
     document.querySelectorAll('.stock-chart-btn').forEach(function(btn){
         btn.addEventListener('click',function(){
             var sym=this.dataset.sym,title=this.dataset.title;
-            document.getElementById('modal-title').textContent=title+' — Intraday Chart';
+            document.getElementById('modal-title').textContent=title+' - Intraday Chart';
             document.getElementById('modal-chart').innerHTML='<div class="ld" style="text-align:center;padding-top:70px">Loading...</div>';
             document.getElementById('chart-modal').classList.add('open');
             var ckey='stocks-'+sym;
@@ -809,13 +809,13 @@ function loadStocks(){
     document.getElementById('stocks-data').innerHTML='<div class="loading-screen"><div class="spinner"></div><div class="ld">Loading stock data from Polygon.io...</div></div>';
     fetch('/api/stocks').then(function(r){return r.json();}).then(function(data){
         if(Object.keys(data).length){stockData.cache=data;renderStocks(data);}
-        else document.getElementById('stocks-data').innerHTML='<div class="ld" style="text-align:center;padding:40px">Stock data unavailable — market may be closed</div>';
+        else document.getElementById('stocks-data').innerHTML='<div class="ld" style="text-align:center;padding:40px">Stock data unavailable - market may be closed</div>';
     }).catch(function(){document.getElementById('stocks-data').innerHTML='<div class="ld" style="text-align:center;padding:40px">Error loading stocks</div>';});
 }
 
 // --- FOREX ---
 function renderForex(data){
-    var h='<div class="section-header">Major Forex Pairs — Rates from Frankfurter & ExchangeRate-API</div>';
+    var h='<div class="section-header">Major Forex Pairs - Rates from Frankfurter & ExchangeRate-API</div>';
     h+='<div class="forex-grid">';
     Object.keys(data).forEach(function(pair){
         var d=data[pair];
@@ -833,7 +833,7 @@ function renderForex(data){
             var label=p[0], key=p[1];
             var val=d[key];
             if(val===undefined||val===null){
-                h+='<div class="forex-change-item"><div class="stat-label">'+label+'</div><div class="stat-value gray">—</div></div>';
+                h+='<div class="forex-change-item"><div class="stat-label">'+label+'</div><div class="stat-value gray">-</div></div>';
             } else {
                 var cls=val>0?'green':val<0?'red':'gray';
                 var sign=val>0?'+':'';
@@ -843,9 +843,9 @@ function renderForex(data){
         h+='</div>';
 
         h+='<div class="forex-rates">';
-        h+='<div class="forex-source"><div class="forex-source-name"><a href="https://www.frankfurter.app" target="_blank" class="ex-link">Frankfurter ↗</a></div><div class="forex-rate">'+d.rate.toFixed(5)+'</div></div>';
+        h+='<div class="forex-source"><div class="forex-source-name"><a href="https://www.frankfurter.app" target="_blank" class="ex-link">Frankfurter  ^</a></div><div class="forex-rate">'+d.rate.toFixed(5)+'</div></div>';
         if(d.rate2){
-            h+='<div class="forex-source"><div class="forex-source-name"><a href="https://www.exchangerate-api.com" target="_blank" class="ex-link">ExchangeRate-API ↗</a></div><div class="forex-rate">'+d.rate2.toFixed(5)+'</div></div>';
+            h+='<div class="forex-source"><div class="forex-source-name"><a href="https://www.exchangerate-api.com" target="_blank" class="ex-link">ExchangeRate-API  ^</a></div><div class="forex-rate">'+d.rate2.toFixed(5)+'</div></div>';
             var spread=Math.abs(d.rate-d.rate2);
             var spreadPct=(spread/Math.min(d.rate,d.rate2)*100).toFixed(4);
             h+='</div><div class="forex-spread">Spread: <span>'+spreadPct+'%</span> ('+spread.toFixed(5)+')</div>';
@@ -881,7 +881,7 @@ function renderForex(data){
             var pair=this.dataset.pair;
             var base=this.dataset.base;
             var quote=this.dataset.quote;
-            document.getElementById('modal-title').textContent=pair+' — 90 Day Chart';
+            document.getElementById('modal-title').textContent=pair+' - 90 Day Chart';
             document.getElementById('modal-chart').innerHTML='<div class="ld" style="text-align:center;padding-top:70px">Loading...</div>';
             document.getElementById('chart-modal').classList.add('open');
             var ckey='forex-'+pair;
@@ -934,7 +934,7 @@ window.onload=function(){
   <button class="tab-btn active" id="tab-crypto" onclick="switchTab('crypto')">Crypto</button>
   <button class="tab-btn" id="tab-stocks" onclick="switchTab('stocks')">Stocks</button>
   <button class="tab-btn" id="tab-forex" onclick="switchTab('forex')">Forex</button>
-  <button class="tab-btn" id="tab-brief" onclick="switchTab('brief')">📊 Daily Brief</button>
+  <button class="tab-btn" id="tab-brief" onclick="switchTab('brief')">Daily Brief</button>
 </div>
 <div class="container">
   <div class="tab-content active" id="content-crypto">
@@ -948,10 +948,10 @@ window.onload=function(){
   </div>
   <div class="tab-content" id="content-brief">
     <div style="max-width:560px;margin:40px auto;text-align:center">
-      <div style="font-size:2em;margin-bottom:12px">📊</div>
+      <div style="font-size:2em;margin-bottom:12px"></div>
       <div style="font-size:1.4em;font-weight:700;color:#fff;margin-bottom:8px">JSCAN Daily Brief</div>
       <div style="color:#555;font-size:.9em;margin-bottom:32px;line-height:1.6">Get an AI-powered stock research report delivered to your inbox every morning at 8am. Claude analyzes 100 stocks, flags signals, and executes paper trades automatically.</div>
-      <a href="https://jscan-agent.up.railway.app" target="_blank" style="display:inline-block;background:#00ff88;color:#000;font-weight:700;font-size:1em;padding:14px 32px;border-radius:8px;text-decoration:none;transition:opacity .2s">Subscribe Free →</a>
+      <a href="https://jscan-agent.up.railway.app" target="_blank" style="display:inline-block;background:#00ff88;color:#000;font-weight:700;font-size:1em;padding:14px 32px;border-radius:8px;text-decoration:none;transition:opacity .2s">Subscribe Free -></a>
       <div style="margin-top:40px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
         <div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:10px;padding:20px 24px;flex:1;min-width:140px">
           <div style="font-size:1.6em;font-weight:700;color:#00ff88">100</div>
