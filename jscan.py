@@ -668,7 +668,7 @@ function renderCrypto(data){
     var sortBy=document.getElementById('sort-crypto')?document.getElementById('sort-crypto').value:'default';
     if(sortBy!=='default') arr=sortData(arr,sortBy==='spread-hl'?'spread-hl':sortBy);
 
-    var h=makeSortBar('crypto','<option value="spread-hl">Spread ↓</option>');
+    var h=makeSortBar('crypto','<option value="spread-hl">Spread High-Low</option>');
     h+='<div class="grid">';
     arr.forEach(function(item){
         var sym=item.sym,c=item.data,ex=item.ex,keys=item.keys,minP=item.minP,maxP=item.maxP;
@@ -746,7 +746,7 @@ function renderStocks(data){
 
     var count=arr.length;
     var h=makeSortBar('stocks');
-    h+='<div class="section-header" style="margin-top:12px">Top 50 Stocks — Prev day close · Polygon.io · '+count+' loaded</div>';
+    h+='<div class="section-header" style="margin-top:12px">Top 50 Stocks | Prev day close | Polygon.io | '+count+' loaded</div>';
     h+='<div class="grid">';
     arr.forEach(function(item){
         var sym=item.sym,s=item.data;
