@@ -1289,14 +1289,23 @@ function renderCrypto(data){
     vState['crypto-tab'].allItems=arr;
     initVirtualScroll('crypto-tab', arr, renderCard);
 
-    document.getElementById('search-crypto').addEventListener('input',function(){
-        filterItems('crypto-tab',this.value);
-        // reload charts for visible cards
-        document.querySelectorAll('#crypto-tab-grid .chart-wrap').forEach(function(wrap){
-            var sym=wrap.id.replace('cw-','');
-            loadChartInto('crypto',sym,wrap.id,'tt-'+sym);
+    var searchEl = document.getElementById('search-crypto');
+    if(searchEl) {
+        searchEl.addEventListener('input',function(){
+            var q=this.value;
+            vState['crypto-tab'].items=vState['crypto-tab'].allItems.filter(function(item){
+                return !q||item.sym.toLowerCase().includes(q.toLowerCase())||(item.name||'').toLowerCase().includes(q.toLowerCase());
+            });
+            vState['crypto-tab'].page=1;
+            renderVirtualPage('crypto-tab');
+            setTimeout(function(){
+                document.querySelectorAll('#crypto-tab-grid .chart-wrap').forEach(function(wrap){
+                    var sym=wrap.id.replace('cw-','');
+                    loadChartInto('crypto',sym,wrap.id,'tt-'+sym);
+                });
+            },100);
         });
-    });
+    }
 
     wireSortBars();
 
@@ -1375,9 +1384,17 @@ function renderStocks(data){
     vState['stocks-tab'].allItems=arr;
     initVirtualScroll('stocks-tab', arr, renderCard);
 
-    document.getElementById('search-stocks').addEventListener('input',function(){
-        filterItems('stocks-tab',this.value);
-    });
+    var searchStocks = document.getElementById('search-stocks');
+    if(searchStocks) {
+        searchStocks.addEventListener('input',function(){
+            var q=this.value;
+            vState['stocks-tab'].items=vState['stocks-tab'].allItems.filter(function(item){
+                return !q||item.sym.toLowerCase().includes(q.toLowerCase())||(item.name||'').toLowerCase().includes(q.toLowerCase());
+            });
+            vState['stocks-tab'].page=1;
+            renderVirtualPage('stocks-tab');
+        });
+    }
 
     wireSortBars();
     stockData.loaded=true;
@@ -1487,6 +1504,8 @@ setInterval(function(){
 window.onload=function(){
     document.getElementById('crypto-data').innerHTML='<div class="loading-screen"><div class="spinner"></div><div class="ld">Fetching prices...</div></div>';
     loadCrypto();
+    loadStocks();
+    loadForex();
 };
 </script>
 </head>
