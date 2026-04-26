@@ -430,9 +430,9 @@ body{font-family:'Inter',sans-serif;background:#0a0a0a;color:#e0e0e0;min-height:
 .card-header{padding:18px 22px 14px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid #141414}
 .card-ticker{display:flex;align-items:center;gap:8px;margin-bottom:3px}
 .card-symbol{font-size:1.15em;font-weight:700;color:#fff;letter-spacing:-.3px}
-.star-btn{background:transparent;border:none;cursor:pointer;font-size:1em;padding:0;line-height:1;opacity:.4;transition:opacity .2s,transform .2s}
-.star-btn:hover{opacity:.8;transform:scale(1.2)}
-.star-btn.active{opacity:1}
+.star-btn{background:transparent;border:none;cursor:pointer;font-size:1.1em;padding:0 2px;line-height:1;opacity:.6;transition:opacity .2s,transform .2s;color:#888}
+.star-btn:hover{opacity:1;transform:scale(1.2);color:#ffd700}
+.star-btn.active{opacity:1;color:#ffd700}
 .card-name{font-size:.78em;color:#555}
 .chart-btn{color:#2a2a2a;font-size:.7em;cursor:pointer;padding:2px 7px;border:1px solid #1c1c1c;border-radius:4px;transition:all .2s;text-decoration:none;background:transparent;font-family:inherit}
 .chart-btn:hover{color:#00ff88;border-color:#00ff88}
