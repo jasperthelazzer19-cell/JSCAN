@@ -755,12 +755,14 @@ function renderStocks(data){
         var ttId='stt-'+sym.replace(/[^a-z0-9]/gi,'');
         var sc=chg>2?'green':chg<-2?'red':'yellow';
         var sector=STOCK_SECTORS[sym]||'Other';
-        var sectorColor={'Technology':'#4488ff','Finance':'#00cc88','Healthcare':'#ff6688','Consumer':'#ffaa44','Energy':'#ffcc00','Media':'#cc44ff','Telecom':'#44ccff','Retail':'#ff8844','Industrial':'#88aacc','Defense':'#aaaaaa','Automotive':'#ff4444','Utilities':'#44ffaa','Gaming':'#ff44aa','Transport':'#44aaff','Crypto':'#f7931a','Other':'#555'};
-        var sc2=sectorColor[sector]||'#555';
+        var sectorColors={'Technology':'#4488ff','Finance':'#00cc88','Healthcare':'#ff6688','Consumer':'#ffaa44','Energy':'#ffcc00','Media':'#cc44ff','Telecom':'#44ccff','Retail':'#ff8844','Industrial':'#88aacc','Defense':'#aaaaaa','Automotive':'#ff4444','Utilities':'#44ffaa','Gaming':'#ff44aa','Transport':'#44aaff','Crypto':'#f7931a','Other':'#555555'};
+        var sc2=sectorColors[sector]||'#555555';
+        var sc2bg=sc2+'33';
+        var sc2border=sc2+'66';
 
         h+='<div class="card">';
         h+='<div class="card-header">';
-        h+='<div class="card-left"><div class="card-ticker"><span class="card-symbol">'+sym+'</span><button class="chart-btn stock-chart-btn" data-sym="'+sym+'" data-title="'+s.name+' ('+sym+')">1d</button><span style="font-size:.62em;padding:2px 6px;border-radius:4px;background:'+sc2+'22;color:'+sc2+';border:1px solid '+sc2+'44;font-weight:600">'+sector+'</span></div><div class="card-name">'+s.name+'</div></div>';
+        h+='<div class="card-left"><div class="card-ticker"><span class="card-symbol">'+sym+'</span><button class="chart-btn stock-chart-btn" data-sym="'+sym+'" data-title="'+s.name+' ('+sym+')">1d</button><span style="font-size:.62em;padding:2px 6px;border-radius:4px;background:'+sc2bg+';color:'+sc2+';border:1px solid '+sc2border+';font-weight:600">'+sector+'</span></div><div class="card-name">'+s.name+'</div></div>';
         h+='<div class="card-right"><div class="card-price">'+fmt(s.price)+'</div><div class="card-change '+changeClass(chg)+'">'+changeStr(chg)+'</div></div>';
         h+='</div>';
         h+='<div class="stats-bar">';
