@@ -651,8 +651,12 @@ function sortItems(arr, sortBy) {
 
 function makeSortBar(tabKey, extraOpts) {
     var id = 'sort-sel-' + tabKey;
-    var opts = '<option value="default">Default</option><option value="alpha">A-Z</option><option value="change-hl">Change: High to Low</option><option value="change-lh">Change: Low to High</option><option value="price-hl">Price: High to Low</option><option value="price-lh">Price: Low to High</option>' + (extraOpts || '');
-    return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px"><span style="font-size:.75em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:500">Sort</span><select id="' + id + '" onchange="handleSort(\'' + tabKey + '\')" style="background:#0d0d0d;border:1px solid #1c1c1c;color:#aaa;padding:6px 12px;border-radius:7px;font-size:.8em;font-family:inherit;cursor:pointer;outline:none">' + opts + '</select></div>';
+    var opts = '<option value="default">Default</option><option value="alpha">A-Z</option><option value="change-hl">Change High-Low</option><option value="change-lh">Change Low-High</option><option value="price-hl">Price High-Low</option><option value="price-lh">Price Low-High</option>' + (extraOpts || '');
+    var bar = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">';
+    bar += '<span style="font-size:.75em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:500">Sort</span>';
+    bar += '<select id="' + id + '" class="sort-select-ctrl" data-tab="' + tabKey + '" style="background:#0d0d0d;border:1px solid #1c1c1c;color:#aaa;padding:6px 12px;border-radius:7px;font-size:.8em;font-family:inherit;cursor:pointer;outline:none">' + opts + '</select>';
+    bar += '</div>';
+    return bar;
 }
 
 function handleSort(tabKey) {
@@ -660,6 +664,12 @@ function handleSort(tabKey) {
     if(!sel) return;
     if(tabKey === 'crypto') { cryptoSort = sel.value; renderCrypto(cryptoData); }
     if(tabKey === 'stocks') { stockSort = sel.value; renderStocks(stockData.raw); }
+}
+
+function wireSortBars() {
+    document.querySelectorAll('.sort-select-ctrl').forEach(function(sel) {
+        sel.addEventListener('change', function() { handleSort(this.dataset.tab); });
+    });
 }
 function isFav(key, sym) { return getFavs(key).indexOf(sym) >= 0; }
 
@@ -727,6 +737,7 @@ function renderCrypto(data){
             renderCrypto(cryptoData);
         });
     });
+    wireSortBars();
 }
 
 function loadCrypto(){
@@ -813,6 +824,7 @@ function renderStocks(data){
             renderStocks(stockData.raw);
         });
     });
+    wireSortBars();
     stockData.loaded=true;
     stockData.raw=data;
 }
