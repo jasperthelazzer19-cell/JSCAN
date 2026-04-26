@@ -345,19 +345,37 @@ def fetch_kraken_prices():
         return {}
 
 def fetch_coinbase_prices():
+    # Only fetch coins that aren't on Binance or Bybit
+    coinbase_only = [(sym, info["coinbase"]) for sym, info in CRYPTO_COINS.items()
+                     if info.get("coinbase") and not info.get("binance") and not info.get("bybit")]
+    # Also fetch all coinbase coins for price comparison (no change needed, Binance has it)
+    all_coinbase = [(sym, info["coinbase"]) for sym, info in CRYPTO_COINS.items() if info.get("coinbase")]
+    coinbase_only_pairs = {pair for sym, pair in coinbase_only}
+
     out = {}
-    pairs = [(sym, info["coinbase"]) for sym, info in CRYPTO_COINS.items() if info.get("coinbase")]
     def fetch_one(pair_tuple):
         sym, pair = pair_tuple
         try:
             r = requests.get("https://api.coinbase.com/v2/prices/" + pair + "/spot", timeout=3)
             price = round(float(r.json()["data"]["amount"]), 8)
-            return pair, {"price": price, "change": 0}
+            change = 0
+            # Only get historic for coinbase-only coins
+            if pair in coinbase_only_pairs:
+                try:
+                    r2 = requests.get("https://api.coinbase.com/v2/prices/" + pair + "/historic?period=day", timeout=3)
+                    prices_hist = r2.json().get("data", {}).get("prices", [])
+                    if prices_hist:
+                        old = float(prices_hist[-1]["price"])
+                        change = round(((price - old) / old) * 100, 2) if old else 0
+                except:
+                    pass
+            return pair, {"price": price, "change": change}
         except:
             return pair, None
+
     import concurrent.futures
     with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
-        results = executor.map(fetch_one, pairs, timeout=8)
+        results = list(executor.map(fetch_one, all_coinbase, timeout=8))
         for pair, data in results:
             if data:
                 out[pair] = data
@@ -818,9 +836,11 @@ body{font-family:'Inter',sans-serif;background:#0a0a0a;color:#e0e0e0;min-height:
 .sort-label{font-size:.75em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:500}
 .sort-select{background:#0d0d0d;border:1px solid #1c1c1c;color:#aaa;padding:6px 12px;border-radius:7px;font-size:.8em;font-family:inherit;cursor:pointer;outline:none;transition:border-color .2s}
 .sort-select:hover,.sort-select:focus{border-color:#00ff88;color:#fff}
-.search-input{background:#0d0d0d;border:1px solid #1c1c1c;color:#e0e0e0;padding:7px 14px;border-radius:7px;font-size:.85em;font-family:inherit;outline:none;transition:border-color .2s;width:220px}
+.search-input{background:#0d0d0d;border:1px solid #1c1c1c;color:#e0e0e0;padding:7px 14px;border-radius:7px 0 0 7px;font-size:.85em;font-family:inherit;outline:none;transition:border-color .2s;width:200px}
 .search-input:focus{border-color:#00ff88}
 .search-input::placeholder{color:#333}
+.search-btn{background:#00ff88;border:none;color:#000;padding:7px 14px;border-radius:0 7px 7px 0;font-size:.85em;font-weight:600;font-family:inherit;cursor:pointer;transition:opacity .2s}
+.search-btn:hover{opacity:.85}
 .controls-bar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
 .modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.93);z-index:999;align-items:center;justify-content:center;padding:30px}
 .modal-bg.open{display:flex}
@@ -1115,10 +1135,34 @@ function makeSortBar(tabKey, extraOpts) {
     var bar = '<div class="controls-bar">';
     bar += '<span class="sort-label">Sort</span>';
     bar += '<select id="' + id + '" class="sort-select-ctrl sort-select" data-tab="' + tabKey + '">' + opts + '</select>';
-    bar += '<input class="search-input search-ctrl" data-tab="' + tabKey + '" placeholder="Search ticker..." type="text" id="search-' + tabKey + '">';
+    bar += '<div style="display:flex">';
+    bar += '<input class="search-input" id="search-' + tabKey + '" placeholder="Search ticker..." type="text">';
+    bar += '<button class="search-btn" id="search-btn-' + tabKey + '">Search</button>';
+    bar += '</div>';
     bar += '<span id="count-' + tabKey + '" style="font-size:.75em;color:#333;margin-left:4px"></span>';
     bar += '</div>';
     return bar;
+}
+
+function doSearch(tabKey) {
+    var input = document.getElementById('search-' + tabKey);
+    if(!input) return;
+    var q = input.value.toLowerCase().trim();
+    var s = vState[tabKey];
+    if(!s) return;
+    s.items = s.allItems.filter(function(item) {
+        return !q || item.sym.toLowerCase().includes(q) || (item.name||'').toLowerCase().includes(q);
+    });
+    s.page = 1;
+    renderVirtualPage(tabKey);
+    if(tabKey === 'crypto-tab') {
+        setTimeout(function(){
+            document.querySelectorAll('#crypto-tab-grid .chart-wrap').forEach(function(wrap){
+                var sym = wrap.id.replace('cw-','');
+                loadChartInto('crypto', sym, wrap.id, 'tt-'+sym);
+            });
+        }, 100);
+    }
 }
 
 // Virtual scroll state
@@ -1288,21 +1332,12 @@ function renderCrypto(data){
     initVirtualScroll('crypto-tab', arr, renderCard);
 
     var searchEl = document.getElementById('search-crypto');
+    var searchBtn = document.getElementById('search-btn-crypto');
     if(searchEl) {
-        searchEl.addEventListener('input',function(){
-            var q=this.value;
-            vState['crypto-tab'].items=vState['crypto-tab'].allItems.filter(function(item){
-                return !q||item.sym.toLowerCase().includes(q.toLowerCase())||(item.name||'').toLowerCase().includes(q.toLowerCase());
-            });
-            vState['crypto-tab'].page=1;
-            renderVirtualPage('crypto-tab');
-            setTimeout(function(){
-                document.querySelectorAll('#crypto-tab-grid .chart-wrap').forEach(function(wrap){
-                    var sym=wrap.id.replace('cw-','');
-                    loadChartInto('crypto',sym,wrap.id,'tt-'+sym);
-                });
-            },100);
-        });
+        searchEl.addEventListener('keydown', function(e){ if(e.key==='Enter') doSearch('crypto-tab'); });
+    }
+    if(searchBtn) {
+        searchBtn.addEventListener('click', function(){ doSearch('crypto-tab'); });
     }
 
     wireSortBars();
@@ -1383,15 +1418,12 @@ function renderStocks(data){
     initVirtualScroll('stocks-tab', arr, renderCard);
 
     var searchStocks = document.getElementById('search-stocks');
+    var searchStocksBtn = document.getElementById('search-btn-stocks');
     if(searchStocks) {
-        searchStocks.addEventListener('input',function(){
-            var q=this.value;
-            vState['stocks-tab'].items=vState['stocks-tab'].allItems.filter(function(item){
-                return !q||item.sym.toLowerCase().includes(q.toLowerCase())||(item.name||'').toLowerCase().includes(q.toLowerCase());
-            });
-            vState['stocks-tab'].page=1;
-            renderVirtualPage('stocks-tab');
-        });
+        searchStocks.addEventListener('keydown', function(e){ if(e.key==='Enter') doSearch('stocks-tab'); });
+    }
+    if(searchStocksBtn) {
+        searchStocksBtn.addEventListener('click', function(){ doSearch('stocks-tab'); });
     }
 
     wireSortBars();
