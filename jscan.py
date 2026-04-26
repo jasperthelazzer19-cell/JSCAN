@@ -613,6 +613,54 @@ function switchTab(tab){
 }
 
 // --- CRYPTO ---
+function renderCrypto(data){
+    var h='<div class="grid">';
+    Object.keys(data).forEach(function(sym){
+        var c=data[sym],ex=c.exchanges,keys=Object.keys(ex);
+        if(!keys.length)return;
+        var prices=keys.map(function(k){return ex[k];});
+        var minP=Math.min.apply(null,prices),maxP=Math.max.apply(null,prices);
+        var spread=maxP>minP?((maxP-minP)/minP*100).toFixed(4):'0.0000';
+        var bestBuy=keys[prices.indexOf(minP)];
+        var avg=prices.reduce(function(a,b){return a+b;},0)/prices.length;
+        var sc=parseFloat(spread)>0.5?'green':parseFloat(spread)>0.1?'yellow':'gray';
+        var chg=c.change24h||0;
+        var cwId='cw-'+sym,ttId='tt-'+sym;
+        h+='<div class="card">';
+        h+='<div class="card-header">';
+        h+='<div class="card-left"><div class="card-ticker"><span class="card-symbol">'+sym+'</span><button class="chart-btn" data-type="crypto" data-coin="'+sym+'" data-title="'+c.name+' ('+sym+')">24h</button></div><div class="card-name">'+c.name+'</div></div>';
+        h+='<div class="card-right"><div class="card-price">'+fmt(avg)+'</div><div class="card-change '+changeClass(chg)+'">'+changeStr(chg)+'</div></div>';
+        h+='</div>';
+        h+='<div class="stats-bar">';
+        h+='<div class="stat"><div class="stat-label">Best Buy</div><div class="stat-value green">'+bestBuy+'</div></div>';
+        h+='<div class="stat"><div class="stat-label">Lowest</div><div class="stat-value green">'+fmt(minP)+'</div></div>';
+        h+='<div class="stat"><div class="stat-label">Spread</div><div class="stat-value '+sc+'">'+spread+'%</div></div>';
+        h+='<div class="stat"><div class="stat-label">Exchanges</div><div class="stat-value gray">'+keys.length+'</div></div>';
+        h+='</div>';
+        h+='<div class="chart-section"><div class="section-label">24h price trend</div><div class="chart-wrap" id="'+cwId+'"></div><div class="tooltip" id="'+ttId+'"><div class="tooltip-price"></div><div class="tooltip-time"></div></div></div>';
+        var sorted=keys.slice().sort(function(a,b){return ex[a]-ex[b];});
+        h+='<table class="ex-table"><tr><th>Exchange</th><th>Price</th><th>vs Cheapest</th><th></th></tr>';
+        sorted.forEach(function(e){
+            var p=ex[e],diff=((p-minP)/minP*100).toFixed(4);
+            var isBest=p===minP,isHigh=p===maxP&&maxP!==minP;
+            var link=CRYPTO_LINKS[e]||'#';
+            h+='<tr><td><a href="'+link+'" target="_blank" class="ex-link">'+e+'</a></td>';
+            h+='<td class="ex-price">'+fmt(p)+'</td>';
+            h+='<td class="'+(parseFloat(diff)>0?'diff-pos':'diff-zero')+'">'+(parseFloat(diff)>0?'+':'')+diff+'%</td>';
+            h+='<td>'+(isBest?'<span class="badge badge-buy">BEST BUY</span>':isHigh?'<span class="badge badge-sell">HIGHEST</span>':'')+'</td></tr>';
+        });
+        h+='</table></div>';
+    });
+    h+='</div>';
+    document.getElementById('crypto-data').innerHTML=h;
+    Object.keys(data).forEach(function(sym){
+        if(Object.keys(data[sym].exchanges).length) loadChartInto('crypto',sym,'cw-'+sym,'tt-'+sym);
+    });
+    document.querySelectorAll('#crypto-data .chart-btn').forEach(function(btn){
+        btn.addEventListener('click',function(){openModal('crypto',this.dataset.coin,this.dataset.title);});
+    });
+}
+
 function loadCrypto(){
 
     document.getElementById('last-updated').textContent='Updating...';
@@ -814,7 +862,7 @@ window.onload=function(){
   <button class="tab-btn active" id="tab-crypto" onclick="switchTab('crypto')">Crypto</button>
   <button class="tab-btn" id="tab-stocks" onclick="switchTab('stocks')">Stocks</button>
   <button class="tab-btn" id="tab-forex" onclick="switchTab('forex')">Forex</button>
-  <button class="tab-btn" id="tab-brief" onclick="switchTab('brief')">Daily Brief</button>
+  <button class="tab-btn" id="tab-brief" onclick="switchTab('brief')">&#128202; Daily Brief</button>
 </div>
 <div class="container">
   <div class="tab-content active" id="content-crypto">
