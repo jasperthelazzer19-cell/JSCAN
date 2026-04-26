@@ -346,22 +346,21 @@ def fetch_kraken_prices():
 
 def fetch_coinbase_prices():
     out = {}
-    for sym, info in CRYPTO_COINS.items():
-        pair = info.get("coinbase")
-        if not pair:
-            continue
+    pairs = [(sym, info["coinbase"]) for sym, info in CRYPTO_COINS.items() if info.get("coinbase")]
+    def fetch_one(pair_tuple):
+        sym, pair = pair_tuple
         try:
-            r = requests.get("https://api.coinbase.com/v2/prices/" + pair + "/spot", timeout=4)
+            r = requests.get("https://api.coinbase.com/v2/prices/" + pair + "/spot", timeout=3)
             price = round(float(r.json()["data"]["amount"]), 8)
-            r2 = requests.get("https://api.coinbase.com/v2/prices/" + pair + "/historic?period=day", timeout=4)
-            prices_hist = r2.json().get("data", {}).get("prices", [])
-            change = 0
-            if prices_hist:
-                old = float(prices_hist[-1]["price"])
-                change = round(((price - old) / old) * 100, 2) if old else 0
-            out[pair] = {"price": price, "change": change}
+            return pair, {"price": price, "change": 0}
         except:
-            pass
+            return pair, None
+    import concurrent.futures
+    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+        results = executor.map(fetch_one, pairs, timeout=8)
+        for pair, data in results:
+            if data:
+                out[pair] = data
     return out
 
 def fetch_bybit_prices():
@@ -372,10 +371,16 @@ def fetch_bybit_prices():
         return {}
 
 def get_crypto_prices():
-    binance = fetch_binance_prices()
-    kraken = fetch_kraken_prices()
-    coinbase = fetch_coinbase_prices()
-    bybit = fetch_bybit_prices()
+    import concurrent.futures
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+        f_binance = executor.submit(fetch_binance_prices)
+        f_kraken = executor.submit(fetch_kraken_prices)
+        f_bybit = executor.submit(fetch_bybit_prices)
+        f_coinbase = executor.submit(fetch_coinbase_prices)
+        binance = f_binance.result()
+        kraken = f_kraken.result()
+        bybit = f_bybit.result()
+        coinbase = f_coinbase.result()
     result = {}
     for sym, info in CRYPTO_COINS.items():
         exchanges = {}
