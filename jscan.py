@@ -626,32 +626,71 @@ function toggleFav(key, sym) {
     localStorage.setItem(key, JSON.stringify(favs));
     return favs.indexOf(sym) >= 0;
 }
+
+// --- SORT ---
+var cryptoSort = 'default';
+var stockSort = 'default';
+
+function sortItems(arr, sortBy) {
+    return arr.slice().sort(function(a, b) {
+        var af = a.fav, bf = b.fav;
+        if(sortBy === 'default') {
+            if(af && !bf) return -1;
+            if(bf && !af) return 1;
+            return 0;
+        }
+        if(sortBy === 'price-hl') return b.price - a.price;
+        if(sortBy === 'price-lh') return a.price - b.price;
+        if(sortBy === 'change-hl') return b.chg - a.chg;
+        if(sortBy === 'change-lh') return a.chg - b.chg;
+        if(sortBy === 'alpha') return a.sym.localeCompare(b.sym);
+        if(sortBy === 'spread-hl') return (b.spread||0) - (a.spread||0);
+        return 0;
+    });
+}
+
+function makeSortBar(tabKey, extraOpts) {
+    var id = 'sort-sel-' + tabKey;
+    var opts = '<option value="default">Default</option><option value="alpha">A-Z</option><option value="change-hl">Change: High to Low</option><option value="change-lh">Change: Low to High</option><option value="price-hl">Price: High to Low</option><option value="price-lh">Price: Low to High</option>' + (extraOpts || '');
+    return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px"><span style="font-size:.75em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:500">Sort</span><select id="' + id + '" onchange="handleSort(\'' + tabKey + '\')" style="background:#0d0d0d;border:1px solid #1c1c1c;color:#aaa;padding:6px 12px;border-radius:7px;font-size:.8em;font-family:inherit;cursor:pointer;outline:none">' + opts + '</select></div>';
+}
+
+function handleSort(tabKey) {
+    var sel = document.getElementById('sort-sel-' + tabKey);
+    if(!sel) return;
+    if(tabKey === 'crypto') { cryptoSort = sel.value; renderCrypto(cryptoData); }
+    if(tabKey === 'stocks') { stockSort = sel.value; renderStocks(stockData.raw); }
+}
 function isFav(key, sym) { return getFavs(key).indexOf(sym) >= 0; }
 
 // --- CRYPTO ---
 function renderCrypto(data){
     var favs=getFavs('crypto-favs');
-    var syms=Object.keys(data).sort(function(a,b){
-        var af=favs.indexOf(a)>=0, bf=favs.indexOf(b)>=0;
-        if(af&&!bf) return -1; if(bf&&!af) return 1; return 0;
-    });
-    var h='<div class="grid">';
-    syms.forEach(function(sym){
+    var arr=[];
+    Object.keys(data).forEach(function(sym){
         var c=data[sym],ex=c.exchanges,keys=Object.keys(ex);
         if(!keys.length)return;
         var prices=keys.map(function(k){return ex[k];});
         var minP=Math.min.apply(null,prices),maxP=Math.max.apply(null,prices);
-        var spread=maxP>minP?((maxP-minP)/minP*100).toFixed(4):'0.0000';
-        var bestBuy=keys[prices.indexOf(minP)];
         var avg=prices.reduce(function(a,b){return a+b;},0)/prices.length;
+        var spread=maxP>minP?((maxP-minP)/minP*100):0;
+        arr.push({sym:sym,price:avg,chg:c.change24h||0,fav:favs.indexOf(sym)>=0,spread:spread,data:c,ex:ex,keys:keys,minP:minP,maxP:maxP});
+    });
+    arr=sortItems(arr,cryptoSort);
+    var h=makeSortBar('crypto','<option value="spread-hl">Spread: High to Low</option>');
+    h+='<div class="grid">';
+    arr.forEach(function(item){
+        var sym=item.sym,c=item.data,ex=item.ex,keys=item.keys,minP=item.minP,maxP=item.maxP;
+        var spread=item.spread.toFixed(4);
+        var bestBuy=keys[Object.values(ex).indexOf(minP)]||keys[0];
         var sc=parseFloat(spread)>0.5?'green':parseFloat(spread)>0.1?'yellow':'gray';
-        var chg=c.change24h||0;
+        var chg=item.chg;
         var cwId='cw-'+sym,ttId='tt-'+sym;
-        var fav=favs.indexOf(sym)>=0;
+        var fav=item.fav;
         h+='<div class="card">';
         h+='<div class="card-header">';
         h+='<div class="card-left"><div class="card-ticker"><span class="card-symbol">'+sym+'</span><button class="chart-btn" data-type="crypto" data-coin="'+sym+'" data-title="'+c.name+' ('+sym+')">24h</button><button class="star-btn'+(fav?' active':'')+'" data-key="crypto-favs" data-sym="'+sym+'" title="Favorite">'+(fav?'&#11088;':'&#9734;')+'</button></div><div class="card-name">'+c.name+'</div></div>';
-        h+='<div class="card-right"><div class="card-price">'+fmt(avg)+'</div><div class="card-change '+changeClass(chg)+'">'+changeStr(chg)+'</div></div>';
+        h+='<div class="card-right"><div class="card-price">'+fmt(item.price)+'</div><div class="card-change '+changeClass(chg)+'">'+changeStr(chg)+'</div></div>';
         h+='</div>';
         h+='<div class="stats-bar">';
         h+='<div class="stat"><div class="stat-label">Best Buy</div><div class="stat-value green">'+bestBuy+'</div></div>';
@@ -675,8 +714,8 @@ function renderCrypto(data){
     });
     h+='</div>';
     document.getElementById('crypto-data').innerHTML=h;
-    syms.forEach(function(sym){
-        if(Object.keys(data[sym].exchanges).length) loadChartInto('crypto',sym,'cw-'+sym,'tt-'+sym);
+    arr.forEach(function(item){
+        if(item.keys.length) loadChartInto('crypto',item.sym,'cw-'+item.sym,'tt-'+item.sym);
     });
     document.querySelectorAll('#crypto-data .chart-btn').forEach(function(btn){
         btn.addEventListener('click',function(){openModal('crypto',this.dataset.coin,this.dataset.title);});
@@ -685,8 +724,6 @@ function renderCrypto(data){
         btn.addEventListener('click',function(){
             var key=this.dataset.key, sym=this.dataset.sym;
             var nowFav=toggleFav(key,sym);
-            this.classList.toggle('active',nowFav);
-            this.innerHTML=nowFav?'&#11088;':'&#9734;';
             renderCrypto(cryptoData);
         });
     });
@@ -713,19 +750,21 @@ function fmtVol(v){
 
 function renderStocks(data){
     var favs=getFavs('stocks-favs');
-    var keys=Object.keys(data).sort(function(a,b){
-        var af=favs.indexOf(a)>=0, bf=favs.indexOf(b)>=0;
-        if(af&&!bf) return -1; if(bf&&!af) return 1; return 0;
-    });
-    var h='<div class="section-header">Top 50 Stocks - Prev day close - Polygon.io - '+keys.length+' loaded</div>';
-    h+='<div class="grid">';
-    keys.forEach(function(sym){
+    var arr=Object.keys(data).map(function(sym){
         var s=data[sym];
-        var chg=s.change24h||0;
+        return {sym:sym,price:s.price,chg:s.change24h||0,fav:favs.indexOf(sym)>=0,data:s};
+    });
+    arr=sortItems(arr,stockSort);
+    var h=makeSortBar('stocks');
+    h+='<div class="section-header">Top 50 Stocks - Prev day close - Polygon.io - '+arr.length+' loaded</div>';
+    h+='<div class="grid">';
+    arr.forEach(function(item){
+        var sym=item.sym,s=item.data;
+        var chg=item.chg;
         var cwId='scw-'+sym.replace(/[^a-z0-9]/gi,'');
         var ttId='stt-'+sym.replace(/[^a-z0-9]/gi,'');
         var sc=chg>2?'green':chg<-2?'red':'yellow';
-        var fav=favs.indexOf(sym)>=0;
+        var fav=item.fav;
         h+='<div class="card">';
         h+='<div class="card-header">';
         h+='<div class="card-left"><div class="card-ticker"><span class="card-symbol">'+sym+'</span><button class="chart-btn stock-chart-btn" data-sym="'+sym+'" data-title="'+s.name+' ('+sym+')">1d</button><button class="star-btn'+(fav?' active':'')+'" data-key="stocks-favs" data-sym="'+sym+'" title="Favorite">'+(fav?'&#11088;':'&#9734;')+'</button></div><div class="card-name">'+s.name+'</div></div>';
@@ -748,7 +787,8 @@ function renderStocks(data){
     });
     h+='</div>';
     document.getElementById('stocks-data').innerHTML=h;
-    keys.forEach(function(sym){
+    arr.forEach(function(item){
+        var sym=item.sym;
         var cwId='scw-'+sym.replace(/[^a-z0-9]/gi,'');
         var ttId='stt-'+sym.replace(/[^a-z0-9]/gi,'');
         var ckey='stocks-'+sym;
@@ -769,9 +809,7 @@ function renderStocks(data){
     document.querySelectorAll('#stocks-data .star-btn').forEach(function(btn){
         btn.addEventListener('click',function(){
             var key=this.dataset.key, sym=this.dataset.sym;
-            var nowFav=toggleFav(key,sym);
-            this.classList.toggle('active',nowFav);
-            this.innerHTML=nowFav?'&#11088;':'&#9734;';
+            toggleFav(key,sym);
             renderStocks(stockData.raw);
         });
     });
