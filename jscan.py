@@ -428,7 +428,6 @@ def get_crypto_prices():
 
 def get_crypto_chart(symbol):
     info = CRYPTO_COINS.get(symbol.upper(), {})
-    # Try Kraken first
     kraken_pair = info.get("kraken")
     if kraken_pair:
         try:
@@ -439,30 +438,6 @@ def get_crypto_chart(symbol):
                     candles = data[key][-24:]
                     return [{"t": int(c[0])*1000, "p": round(float(c[4]), 8)} for c in candles]
         except:
-            pass
-    # Fallback to Binance klines
-    binance_pair = info.get("binance")
-    if binance_pair:
-        try:
-            r = requests.get("https://api.binance.com/api/v3/klines",
-                params={"symbol": binance_pair, "interval": "1h", "limit": 24}, timeout=10)
-            if r.status_code == 200:
-                candles = r.json()
-                if isinstance(candles, list) and len(candles) > 0:
-                    return [{"t": int(c[0]), "p": round(float(c[4]), 8)} for c in candles]
-        except Exception as e:
-            pass
-    # Fallback to Bybit klines
-    bybit_pair = info.get("bybit")
-    if bybit_pair:
-        try:
-            r = requests.get("https://api.bybit.com/v5/market/kline",
-                params={"category": "spot", "symbol": bybit_pair, "interval": "60", "limit": 24}, timeout=10)
-            if r.status_code == 200:
-                data = r.json().get("result", {}).get("list", [])
-                if data:
-                    return [{"t": int(c[0]), "p": round(float(c[4]), 8)} for c in reversed(data)]
-        except Exception as e:
             pass
     return []
 
