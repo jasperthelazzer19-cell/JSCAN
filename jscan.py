@@ -739,6 +739,7 @@ HTML = """<!DOCTYPE html>
 <html>
 <head>
 <title>JSCAN</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23050505'/%3E%3Ctext x='4' y='23' font-family='Arial' font-weight='900' font-size='18' fill='%2300ff88'%3EJ%3C/text%3E%3Cpolyline points='14,22 18,12 22,18 26,10' stroke='%2300ff88' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
