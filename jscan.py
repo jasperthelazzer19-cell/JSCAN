@@ -5,7 +5,7 @@ import os
 
 app = Flask(__name__)
 
-# ─── CRYPTO ───────────────────────────────────────────────
+# âââ CRYPTO âââââââââââââââââââââââââââââââââââââââââââââââ
 CRYPTO_COINS = {
     "BTC":  {"name": "Bitcoin",       "binance": "BTCUSDT",  "kraken": "XBTUSD",   "coinbase": "BTC-USD",  "bybit": "BTCUSDT"},
     "ETH":  {"name": "Ethereum",      "binance": "ETHUSDT",  "kraken": "ETHUSD",   "coinbase": "ETH-USD",  "bybit": "ETHUSDT"},
@@ -265,7 +265,7 @@ CRYPTO_EXCHANGE_LINKS = {
     "Bybit": "https://www.bybit.com",
 }
 
-# ─── STOCKS ───────────────────────────────────────────────
+# âââ STOCKS âââââââââââââââââââââââââââââââââââââââââââââââ
 POLYGON_API_KEY = "AHDx47kyKxiVlcwWs5jP1WjiY2ExUPkC"
 
 TOP_STOCKS = [
@@ -307,7 +307,7 @@ TOP_STOCKS = [
     "GS","MS","SCHW","STT","BK","NTRS","FIS","FISV","GPN","WEX",
 ]
 
-# ─── FOREX ────────────────────────────────────────────────
+# âââ FOREX ââââââââââââââââââââââââââââââââââââââââââââââââ
 FOREX_PAIRS = [
     {"pair": "EUR/USD", "base": "EUR", "quote": "USD"},
     {"pair": "GBP/USD", "base": "GBP", "quote": "USD"},
@@ -321,10 +321,10 @@ FOREX_PAIRS = [
     {"pair": "GBP/JPY", "base": "GBP", "quote": "JPY"},
 ]
 
-# ─── CRYPTO DATA ──────────────────────────────────────────
+# âââ CRYPTO DATA ââââââââââââââââââââââââââââââââââââââââââ
 def fetch_binance_prices():
     try:
-        r = requests.get("https://api.binance.com/api/v3/ticker/24hr", timeout=6)
+        r = requests.get("https://api.binance.com/api/v3/ticker/24hr", timeout=20)
         return {d["symbol"]: {"price": round(float(d["lastPrice"]),8), "change": round(float(d["priceChangePercent"]),2)} for d in r.json()}
     except:
         return {}
@@ -332,7 +332,7 @@ def fetch_binance_prices():
 def fetch_kraken_prices():
     pairs = [v["kraken"] for v in CRYPTO_COINS.values() if v.get("kraken")]
     try:
-        r = requests.get("https://api.kraken.com/0/public/Ticker", params={"pair": ",".join(pairs)}, timeout=6)
+        r = requests.get("https://api.kraken.com/0/public/Ticker", params={"pair": ",".join(pairs)}, timeout=20)
         result = r.json().get("result", {})
         out = {}
         for key, val in result.items():
@@ -349,7 +349,7 @@ def fetch_coinbase_prices():
 
 def fetch_bybit_prices():
     try:
-        r = requests.get("https://api.bybit.com/v5/market/tickers", params={"category": "spot"}, timeout=6)
+        r = requests.get("https://api.bybit.com/v5/market/tickers", params={"category": "spot"}, timeout=20)
         return {d["symbol"]: {"price": round(float(d["lastPrice"]),8), "change": round(float(d.get("price24hPcnt","0"))*100,2)} for d in r.json().get("result",{}).get("list",[])}
     except:
         return {}
@@ -401,7 +401,7 @@ def get_crypto_chart(symbol):
             pass
     return []
 
-# ─── STOCKS DATA (Polygon.io free tier) ───────────────────
+# âââ STOCKS DATA (Polygon.io free tier) âââââââââââââââââââ
 import concurrent.futures
 
 # Hardcoded names since reference API costs extra calls
@@ -548,7 +548,7 @@ def get_stock_chart(symbol):
             continue
     return []
 
-# ─── FOREX DATA ───────────────────────────────────────────
+# âââ FOREX DATA âââââââââââââââââââââââââââââââââââââââââââ
 def get_rate_for_pair(rates_dict, base, quote):
     if not rates_dict:
         return None
@@ -643,7 +643,7 @@ def get_forex_chart(base, quote):
     except:
         return []
 
-# ─── ROUTES ───────────────────────────────────────────────
+# âââ ROUTES âââââââââââââââââââââââââââââââââââââââââââââââ
 @app.route("/")
 def index():
     return render_template_string(HTML)
@@ -657,8 +657,12 @@ def api_crypto():
     if _crypto_cache["data"] and now - _crypto_cache["ts"] < 30:
         return jsonify(_crypto_cache["data"])
     data = get_crypto_prices()
-    _crypto_cache["data"] = data
-    _crypto_cache["ts"] = now
+    has_data = any(len(v.get("exchanges", {})) > 0 for v in data.values())
+    if has_data:
+        _crypto_cache["data"] = data
+        _crypto_cache["ts"] = now
+    elif _crypto_cache["data"]:
+        return jsonify(_crypto_cache["data"])
     return jsonify(data)
 
 @app.route("/api/crypto/chart/<symbol>")
@@ -946,7 +950,7 @@ function loadSentiment(){
 
         var h='<div style="max-width:700px;margin:0 auto">';
         h+='<div style="margin-bottom:8px"><h2 style="font-size:1.3em;font-weight:700;color:#fff;margin-bottom:6px">Fear &amp; Greed Index</h2>';
-        h+='<p style="color:#555;font-size:.85em;line-height:1.6">A daily measure of crypto market emotion. Low scores mean investors are fearful and selling — often a buying opportunity. High scores mean greed is driving prices up — often a sign of overheating.</p></div>';
+        h+='<p style="color:#555;font-size:.85em;line-height:1.6">A daily measure of crypto market emotion. Low scores mean investors are fearful and selling â often a buying opportunity. High scores mean greed is driving prices up â often a sign of overheating.</p></div>';
 
         h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:14px;padding:28px;text-align:center;margin-bottom:20px">';
         h+='<div style="font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;margin-bottom:16px;font-weight:500">Todays Reading</div>';
@@ -1570,7 +1574,7 @@ window.onload=function(){
   <div class="tab-content" id="content-accuracy">
     <div style="max-width:800px;margin:0 auto 28px">
       <h2 style="font-size:1.3em;font-weight:700;color:#fff;margin-bottom:10px">AI Model Accuracy</h2>
-      <p style="color:#555;font-size:.85em;line-height:1.7">JSCAN uses a multi-agent AI system powered by Claude. Each morning, four specialized sub-agents independently analyze news sentiment, technical indicators, market momentum, and macro context for 100+ stocks. Their signals are synthesized by a portfolio manager agent into a final GREEN, YELLOW, or RED call. Results are scored the following day against actual price movement. This tracker shows every call made and whether it was correct — fully transparent, no cherry picking.</p>
+      <p style="color:#555;font-size:.85em;line-height:1.7">JSCAN uses a multi-agent AI system powered by Claude. Each morning, four specialized sub-agents independently analyze news sentiment, technical indicators, market momentum, and macro context for 100+ stocks. Their signals are synthesized by a portfolio manager agent into a final GREEN, YELLOW, or RED call. Results are scored the following day against actual price movement. This tracker shows every call made and whether it was correct â fully transparent, no cherry picking.</p>
     </div>
     <div id="accuracy-data"><div class="loading-screen"><div class="spinner"></div><div class="ld">Loading accuracy data...</div></div></div>
   </div>
