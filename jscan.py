@@ -1217,6 +1217,22 @@ function renderVirtualPage(tabKey) {
     var countEl = document.getElementById('count-' + tabKey);
     if(countEl) countEl.textContent = visible.length + ' of ' + s.items.length;
     wireCardEvents(tabKey);
+    // Load charts for all visible cards
+    if(tabKey === 'crypto-tab') {
+        grid.querySelectorAll('.chart-wrap').forEach(function(wrap){
+            var sym = wrap.id.replace('cw-','');
+            if(sym) loadChartInto('crypto', sym, wrap.id, 'tt-'+sym);
+        });
+    } else if(tabKey === 'stocks-tab') {
+        grid.querySelectorAll('.chart-wrap').forEach(function(wrap){
+            var sym = wrap.id.replace('scw-','');
+            if(sym) {
+                var ckey = 'stocks-' + sym;
+                if(chartCache[ckey]) { drawChart(wrap.id, chartCache[ckey], 'stt-'+sym, false); }
+                else { fetch('/api/stocks/chart/'+sym).then(function(r){return r.json();}).then(function(pts){chartCache[ckey]=pts;drawChart(wrap.id,pts,'stt-'+sym,false);}).catch(function(){}); }
+            }
+        });
+    }
 }
 
 function loadMoreVirtual(tabKey) {
@@ -1364,14 +1380,6 @@ function renderCrypto(data){
     initVirtualScroll('crypto-tab', arr, renderCard);
 
     wireSortBars();
-
-    // Load charts for first page
-    setTimeout(function(){
-        document.querySelectorAll('#crypto-tab-grid .chart-wrap').forEach(function(wrap){
-            var sym=wrap.id.replace('cw-','');
-            loadChartInto('crypto',sym,wrap.id,'tt-'+sym);
-        });
-    },100);
 }
 
 function loadCrypto(){
