@@ -5,7 +5,7 @@ import os
 
 app = Flask(__name__)
 
-# ─── CRYPTO ───────────────────────────────────────────────
+# âââ CRYPTO âââââââââââââââââââââââââââââââââââââââââââââââ
 CRYPTO_COINS = {
     "BTC":  {"name": "Bitcoin",       "binance": "BTCUSDT",  "kraken": "XBTUSD",   "coinbase": "BTC-USD",  "bybit": "BTCUSDT"},
     "ETH":  {"name": "Ethereum",      "binance": "ETHUSDT",  "kraken": "ETHUSD",   "coinbase": "ETH-USD",  "bybit": "ETHUSDT"},
@@ -265,7 +265,7 @@ CRYPTO_EXCHANGE_LINKS = {
     "Bybit": "https://www.bybit.com",
 }
 
-# ─── STOCKS ───────────────────────────────────────────────
+# âââ STOCKS âââââââââââââââââââââââââââââââââââââââââââââââ
 POLYGON_API_KEY = "AHDx47kyKxiVlcwWs5jP1WjiY2ExUPkC"
 
 TOP_STOCKS = [
@@ -307,7 +307,7 @@ TOP_STOCKS = [
     "GS","MS","SCHW","STT","BK","NTRS","FIS","FISV","GPN","WEX",
 ]
 
-# ─── FOREX ────────────────────────────────────────────────
+# âââ FOREX ââââââââââââââââââââââââââââââââââââââââââââââââ
 FOREX_PAIRS = [
     {"pair": "EUR/USD", "base": "EUR", "quote": "USD"},
     {"pair": "GBP/USD", "base": "GBP", "quote": "USD"},
@@ -321,7 +321,7 @@ FOREX_PAIRS = [
     {"pair": "GBP/JPY", "base": "GBP", "quote": "JPY"},
 ]
 
-# ─── CRYPTO DATA ──────────────────────────────────────────
+# âââ CRYPTO DATA ââââââââââââââââââââââââââââââââââââââââââ
 def fetch_binance_prices():
     try:
         r = requests.get("https://api.binance.com/api/v3/ticker/24hr", timeout=6)
@@ -345,42 +345,7 @@ def fetch_kraken_prices():
         return {}
 
 def fetch_coinbase_prices():
-    # Only fetch coins that aren't on Binance or Bybit
-    coinbase_only = [(sym, info["coinbase"]) for sym, info in CRYPTO_COINS.items()
-                     if info.get("coinbase") and not info.get("binance") and not info.get("bybit")]
-    # Also fetch all coinbase coins for price comparison (no change needed, Binance has it)
-    all_coinbase = [(sym, info["coinbase"]) for sym, info in CRYPTO_COINS.items() if info.get("coinbase")]
-    coinbase_only_pairs = {pair for sym, pair in coinbase_only}
-
-    out = {}
-    def fetch_one(pair_tuple):
-        sym, pair = pair_tuple
-        try:
-            r = requests.get("https://api.coinbase.com/v2/prices/" + pair + "/spot", timeout=3)
-            price = round(float(r.json()["data"]["amount"]), 8)
-            change = 0
-            # Only get historic for coinbase-only coins
-            if pair in coinbase_only_pairs:
-                try:
-                    r2 = requests.get("https://api.coinbase.com/v2/prices/" + pair + "/historic?period=day", timeout=3)
-                    prices_hist = r2.json().get("data", {}).get("prices", [])
-                    if prices_hist:
-                        old = float(prices_hist[-1]["price"])
-                        change = round(((price - old) / old) * 100, 2) if old else 0
-                except:
-                    pass
-            return pair, {"price": price, "change": change}
-        except:
-            return pair, None
-
-    import concurrent.futures
-    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
-        results = list(executor.map(fetch_one, all_coinbase, timeout=8))
-        for pair, data in results:
-            if data:
-                out[pair] = data
-    return out
-
+    return {}
 def fetch_bybit_prices():
     try:
         r = requests.get("https://api.bybit.com/v5/market/tickers", params={"category": "spot"}, timeout=6)
@@ -435,7 +400,7 @@ def get_crypto_chart(symbol):
             pass
     return []
 
-# ─── STOCKS DATA (Polygon.io free tier) ───────────────────
+# âââ STOCKS DATA (Polygon.io free tier) âââââââââââââââââââ
 import concurrent.futures
 
 # Hardcoded names since reference API costs extra calls
@@ -582,7 +547,7 @@ def get_stock_chart(symbol):
             continue
     return []
 
-# ─── FOREX DATA ───────────────────────────────────────────
+# âââ FOREX DATA âââââââââââââââââââââââââââââââââââââââââââ
 def get_rate_for_pair(rates_dict, base, quote):
     if not rates_dict:
         return None
@@ -677,7 +642,7 @@ def get_forex_chart(base, quote):
     except:
         return []
 
-# ─── ROUTES ───────────────────────────────────────────────
+# âââ ROUTES âââââââââââââââââââââââââââââââââââââââââââââââ
 @app.route("/")
 def index():
     return render_template_string(HTML)
@@ -971,7 +936,7 @@ function loadSentiment(){
 
         var h='<div style="max-width:700px;margin:0 auto">';
         h+='<div style="margin-bottom:8px"><h2 style="font-size:1.3em;font-weight:700;color:#fff;margin-bottom:6px">Fear &amp; Greed Index</h2>';
-        h+='<p style="color:#555;font-size:.85em;line-height:1.6">A daily measure of crypto market emotion. Low scores mean investors are fearful and selling — often a buying opportunity. High scores mean greed is driving prices up — often a sign of overheating.</p></div>';
+        h+='<p style="color:#555;font-size:.85em;line-height:1.6">A daily measure of crypto market emotion. Low scores mean investors are fearful and selling â often a buying opportunity. High scores mean greed is driving prices up â often a sign of overheating.</p></div>';
 
         h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:14px;padding:28px;text-align:center;margin-bottom:20px">';
         h+='<div style="font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;margin-bottom:16px;font-weight:500">Todays Reading</div>';
@@ -1595,7 +1560,7 @@ window.onload=function(){
   <div class="tab-content" id="content-accuracy">
     <div style="max-width:800px;margin:0 auto 28px">
       <h2 style="font-size:1.3em;font-weight:700;color:#fff;margin-bottom:10px">AI Model Accuracy</h2>
-      <p style="color:#555;font-size:.85em;line-height:1.7">JSCAN uses a multi-agent AI system powered by Claude. Each morning, four specialized sub-agents independently analyze news sentiment, technical indicators, market momentum, and macro context for 100+ stocks. Their signals are synthesized by a portfolio manager agent into a final GREEN, YELLOW, or RED call. Results are scored the following day against actual price movement. This tracker shows every call made and whether it was correct — fully transparent, no cherry picking.</p>
+      <p style="color:#555;font-size:.85em;line-height:1.7">JSCAN uses a multi-agent AI system powered by Claude. Each morning, four specialized sub-agents independently analyze news sentiment, technical indicators, market momentum, and macro context for 100+ stocks. Their signals are synthesized by a portfolio manager agent into a final GREEN, YELLOW, or RED call. Results are scored the following day against actual price movement. This tracker shows every call made and whether it was correct â fully transparent, no cherry picking.</p>
     </div>
     <div id="accuracy-data"><div class="loading-screen"><div class="spinner"></div><div class="ld">Loading accuracy data...</div></div></div>
   </div>
