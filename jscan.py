@@ -428,6 +428,7 @@ def get_crypto_prices():
 
 def get_crypto_chart(symbol):
     info = CRYPTO_COINS.get(symbol.upper(), {})
+    # Try Kraken first
     kraken_pair = info.get("kraken")
     if kraken_pair:
         try:
@@ -437,6 +438,16 @@ def get_crypto_chart(symbol):
                 if key != "last":
                     candles = data[key][-24:]
                     return [{"t": int(c[0])*1000, "p": round(float(c[4]), 8)} for c in candles]
+        except:
+            pass
+    # Fallback to Binance
+    binance_pair = info.get("binance")
+    if binance_pair:
+        try:
+            r = requests.get("https://api.binance.com/api/v3/klines",
+                params={"symbol": binance_pair, "interval": "1h", "limit": 24}, timeout=8)
+            candles = r.json()
+            return [{"t": int(c[0]), "p": round(float(c[4]), 8)} for c in candles]
         except:
             pass
     return []
@@ -1170,7 +1181,7 @@ var vState = {};
 
 function initVirtualScroll(tabKey, items, renderFn) {
     var PAGE = 30;
-    vState[tabKey] = {items: items, page: 1, renderFn: renderFn, PAGE: PAGE};
+    vState[tabKey] = {items: items, allItems: items, page: 1, renderFn: renderFn, PAGE: PAGE};
     var gridId = tabKey + '-grid';
     var grid = document.getElementById(gridId);
     if(!grid) return;
@@ -1328,7 +1339,6 @@ function renderCrypto(data){
     document.getElementById('crypto-data').innerHTML=h;
 
     if(!vState['crypto-tab']) vState['crypto-tab']={};
-    vState['crypto-tab'].allItems=arr;
     initVirtualScroll('crypto-tab', arr, renderCard);
 
     var searchEl = document.getElementById('search-crypto');
@@ -1414,7 +1424,6 @@ function renderStocks(data){
     document.getElementById('stocks-data').innerHTML=h;
 
     if(!vState['stocks-tab']) vState['stocks-tab']={};
-    vState['stocks-tab'].allItems=arr;
     initVirtualScroll('stocks-tab', arr, renderCard);
 
     var searchStocks = document.getElementById('search-stocks');
