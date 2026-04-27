@@ -447,7 +447,19 @@ def get_crypto_chart(symbol):
             r = requests.get("https://api.binance.com/api/v3/klines",
                 params={"symbol": binance_pair, "interval": "1h", "limit": 24}, timeout=8)
             candles = r.json()
-            return [{"t": int(c[0]), "p": round(float(c[4]), 8)} for c in candles]
+            if isinstance(candles, list) and len(candles) > 0:
+                return [{"t": int(c[0]), "p": round(float(c[4]), 8)} for c in candles]
+        except:
+            pass
+    # Also try Bybit as last resort
+    bybit_pair = info.get("bybit")
+    if bybit_pair:
+        try:
+            r = requests.get("https://api.bybit.com/v5/market/kline",
+                params={"category": "spot", "symbol": bybit_pair, "interval": "60", "limit": 24}, timeout=8)
+            data = r.json().get("result", {}).get("list", [])
+            if data:
+                return [{"t": int(c[0]), "p": round(float(c[4]), 8)} for c in reversed(data)]
         except:
             pass
     return []
