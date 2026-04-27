@@ -389,16 +389,10 @@ def fetch_bybit_prices():
         return {}
 
 def get_crypto_prices():
-    import concurrent.futures
-    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-        f_binance = executor.submit(fetch_binance_prices)
-        f_kraken = executor.submit(fetch_kraken_prices)
-        f_bybit = executor.submit(fetch_bybit_prices)
-        f_coinbase = executor.submit(fetch_coinbase_prices)
-        binance = f_binance.result()
-        kraken = f_kraken.result()
-        bybit = f_bybit.result()
-        coinbase = f_coinbase.result()
+    binance = fetch_binance_prices()
+    kraken = fetch_kraken_prices()
+    coinbase = fetch_coinbase_prices()
+    bybit = fetch_bybit_prices()
     result = {}
     for sym, info in CRYPTO_COINS.items():
         exchanges = {}
