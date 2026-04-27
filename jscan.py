@@ -5,7 +5,7 @@ import os
 
 app = Flask(__name__)
 
-# âââ CRYPTO âââââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ CRYPTO Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 CRYPTO_COINS = {
     "BTC":  {"name": "Bitcoin",       "binance": "BTCUSDT",  "kraken": "XBTUSD",   "coinbase": "BTC-USD",  "bybit": "BTCUSDT"},
     "ETH":  {"name": "Ethereum",      "binance": "ETHUSDT",  "kraken": "ETHUSD",   "coinbase": "ETH-USD",  "bybit": "ETHUSDT"},
@@ -265,7 +265,7 @@ CRYPTO_EXCHANGE_LINKS = {
     "Bybit": "https://www.bybit.com",
 }
 
-# âââ STOCKS âââââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ STOCKS Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 POLYGON_API_KEY = "AHDx47kyKxiVlcwWs5jP1WjiY2ExUPkC"
 
 TOP_STOCKS = [
@@ -307,7 +307,7 @@ TOP_STOCKS = [
     "GS","MS","SCHW","STT","BK","NTRS","FIS","FISV","GPN","WEX",
 ]
 
-# âââ FOREX ââââââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ FOREX Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 FOREX_PAIRS = [
     {"pair": "EUR/USD", "base": "EUR", "quote": "USD"},
     {"pair": "GBP/USD", "base": "GBP", "quote": "USD"},
@@ -321,7 +321,43 @@ FOREX_PAIRS = [
     {"pair": "GBP/JPY", "base": "GBP", "quote": "JPY"},
 ]
 
-# âââ CRYPTO DATA ââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ CRYPTO DATA Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+
+
+COINGECKO_IDS = {
+    "BTC": "bitcoin", "ETH": "ethereum", "XRP": "ripple", "BNB": "binancecoin",
+    "SOL": "solana", "DOGE": "dogecoin", "ADA": "cardano", "TRX": "tron",
+    "AVAX": "avalanche-2", "SHIB": "shiba-inu", "DOT": "polkadot", "LINK": "chainlink",
+    "MATIC": "matic-network", "TON": "the-open-network", "BCH": "bitcoin-cash", "LTC": "litecoin",
+    "UNI": "uniswap", "XLM": "stellar", "ATOM": "cosmos", "ETC": "ethereum-classic",
+    "NEAR": "near", "APT": "aptos", "FIL": "filecoin", "ICP": "internet-computer",
+    "HBAR": "hedera-hashgraph", "ARB": "arbitrum", "VET": "vechain", "OP": "optimism",
+    "MKR": "maker", "AAVE": "aave", "GRT": "the-graph", "INJ": "injective-protocol",
+    "SUI": "sui", "TIA": "celestia", "SEI": "sei-network", "RUNE": "thorchain",
+    "FLOW": "flow", "ALGO": "algorand", "PEPE": "pepe", "WIF": "dogwifcoin",
+    "BONK": "bonk", "FLOKI": "floki", "JUP": "jupiter-exchange-solana", "RENDER": "render-token",
+    "FET": "fetch-ai", "IMX": "immutable-x", "STX": "blockstack", "QNT": "quant-network",
+    "USDT": "tether", "USDC": "usd-coin", "DAI": "dai", "FDUSD": "first-digital-usd"
+}
+
+def fetch_coingecko_prices():
+    try:
+        ids = ",".join(set(COINGECKO_IDS.values()))
+        url = "https://api.coingecko.com/api/v3/simple/price"
+        params = {"ids": ids, "vs_currencies": "usd", "include_24hr_change": "true"}
+        r = requests.get(url, params=params, timeout=15)
+        if r.status_code != 200:
+            return {}
+        data = r.json()
+        out = {}
+        for sym, cg_id in COINGECKO_IDS.items():
+            if cg_id in data:
+                d = data[cg_id]
+                out[sym] = {"price": round(float(d.get("usd", 0)), 8), "change": round(float(d.get("usd_24h_change", 0) or 0), 2)}
+        return out
+    except Exception as e:
+        return {}
+
 def fetch_binance_prices():
     try:
         r = requests.get("https://api.binance.com/api/v3/ticker/24hr", timeout=20)
@@ -359,10 +395,16 @@ def get_crypto_prices():
     kraken = fetch_kraken_prices()
     coinbase = fetch_coinbase_prices()
     bybit = fetch_bybit_prices()
+    coingecko = {}
+    if not binance and not kraken and not bybit:
+        coingecko = fetch_coingecko_prices()
     result = {}
     for sym, info in CRYPTO_COINS.items():
         exchanges = {}
         changes = []
+        if coingecko and sym in coingecko:
+            exchanges["CoinGecko"] = coingecko[sym]["price"]
+            changes.append(coingecko[sym]["change"])
         if info.get("binance") and info["binance"] in binance:
             d = binance[info["binance"]]
             exchanges["Binance"] = d["price"]
@@ -401,7 +443,7 @@ def get_crypto_chart(symbol):
             pass
     return []
 
-# âââ STOCKS DATA (Polygon.io free tier) âââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ STOCKS DATA (Polygon.io free tier) Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 import concurrent.futures
 
 # Hardcoded names since reference API costs extra calls
@@ -548,7 +590,7 @@ def get_stock_chart(symbol):
             continue
     return []
 
-# âââ FOREX DATA âââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ FOREX DATA Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 def get_rate_for_pair(rates_dict, base, quote):
     if not rates_dict:
         return None
@@ -643,7 +685,7 @@ def get_forex_chart(base, quote):
     except:
         return []
 
-# âââ ROUTES âââââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ ROUTES Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 @app.route("/")
 def index():
     return render_template_string(HTML)
@@ -950,7 +992,7 @@ function loadSentiment(){
 
         var h='<div style="max-width:700px;margin:0 auto">';
         h+='<div style="margin-bottom:8px"><h2 style="font-size:1.3em;font-weight:700;color:#fff;margin-bottom:6px">Fear &amp; Greed Index</h2>';
-        h+='<p style="color:#555;font-size:.85em;line-height:1.6">A daily measure of crypto market emotion. Low scores mean investors are fearful and selling â often a buying opportunity. High scores mean greed is driving prices up â often a sign of overheating.</p></div>';
+        h+='<p style="color:#555;font-size:.85em;line-height:1.6">A daily measure of crypto market emotion. Low scores mean investors are fearful and selling Ã¢ÂÂ often a buying opportunity. High scores mean greed is driving prices up Ã¢ÂÂ often a sign of overheating.</p></div>';
 
         h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:14px;padding:28px;text-align:center;margin-bottom:20px">';
         h+='<div style="font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;margin-bottom:16px;font-weight:500">Todays Reading</div>';
@@ -1574,7 +1616,7 @@ window.onload=function(){
   <div class="tab-content" id="content-accuracy">
     <div style="max-width:800px;margin:0 auto 28px">
       <h2 style="font-size:1.3em;font-weight:700;color:#fff;margin-bottom:10px">AI Model Accuracy</h2>
-      <p style="color:#555;font-size:.85em;line-height:1.7">JSCAN uses a multi-agent AI system powered by Claude. Each morning, four specialized sub-agents independently analyze news sentiment, technical indicators, market momentum, and macro context for 100+ stocks. Their signals are synthesized by a portfolio manager agent into a final GREEN, YELLOW, or RED call. Results are scored the following day against actual price movement. This tracker shows every call made and whether it was correct â fully transparent, no cherry picking.</p>
+      <p style="color:#555;font-size:.85em;line-height:1.7">JSCAN uses a multi-agent AI system powered by Claude. Each morning, four specialized sub-agents independently analyze news sentiment, technical indicators, market momentum, and macro context for 100+ stocks. Their signals are synthesized by a portfolio manager agent into a final GREEN, YELLOW, or RED call. Results are scored the following day against actual price movement. This tracker shows every call made and whether it was correct Ã¢ÂÂ fully transparent, no cherry picking.</p>
     </div>
     <div id="accuracy-data"><div class="loading-screen"><div class="spinner"></div><div class="ld">Loading accuracy data...</div></div></div>
   </div>
