@@ -1148,17 +1148,15 @@ function makeSortBar(tabKey, extraOpts) {
     bar += '<select id="' + id + '" class="sort-select-ctrl sort-select" data-tab="' + tabKey + '">' + opts + '</select>';
     bar += '<div style="display:flex">';
     bar += '<input class="search-input" id="search-' + tabKey + '" placeholder="Search ticker..." type="text">';
-    bar += '<button class="search-btn" id="search-btn-' + tabKey + '">Search</button>';
+    bar += '<button class="search-btn" id="sbtn-' + tabKey + '">Search</button>';
     bar += '</div>';
     bar += '<span id="count-' + tabKey + '" style="font-size:.75em;color:#333;margin-left:4px"></span>';
     bar += '</div>';
     return bar;
 }
 
-function doSearch(tabKey) {
-    var input = document.getElementById('search-' + tabKey);
-    if(!input) return;
-    var q = input.value.toLowerCase().trim();
+function doSearch(tabKey, q) {
+    q = (q || '').toLowerCase().trim();
     var s = vState[tabKey];
     if(!s) return;
     s.items = s.allItems.filter(function(item) {
@@ -1279,6 +1277,16 @@ function wireSortBars() {
     document.querySelectorAll('.sort-select-ctrl').forEach(function(sel) {
         sel.addEventListener('change', function() { handleSort(this.dataset.tab); });
     });
+    // Wire search buttons
+    ['crypto', 'stocks'].forEach(function(tabKey) {
+        var btn = document.getElementById('sbtn-' + tabKey);
+        var inp = document.getElementById('search-' + tabKey);
+        var vsKey = tabKey + '-tab';
+        if(btn && inp) {
+            btn.onclick = function() { doSearch(vsKey, inp.value); };
+            inp.onkeydown = function(e) { if(e.key === 'Enter') doSearch(vsKey, inp.value); };
+        }
+    });
 }function isFav(key, sym) { return getFavs(key).indexOf(sym) >= 0; }
 
 // --- CRYPTO ---
@@ -1340,15 +1348,6 @@ function renderCrypto(data){
 
     if(!vState['crypto-tab']) vState['crypto-tab']={};
     initVirtualScroll('crypto-tab', arr, renderCard);
-
-    var searchEl = document.getElementById('search-crypto');
-    var searchBtn = document.getElementById('search-btn-crypto');
-    if(searchEl) {
-        searchEl.addEventListener('keydown', function(e){ if(e.key==='Enter') doSearch('crypto-tab'); });
-    }
-    if(searchBtn) {
-        searchBtn.addEventListener('click', function(){ doSearch('crypto-tab'); });
-    }
 
     wireSortBars();
 
@@ -1425,15 +1424,6 @@ function renderStocks(data){
 
     if(!vState['stocks-tab']) vState['stocks-tab']={};
     initVirtualScroll('stocks-tab', arr, renderCard);
-
-    var searchStocks = document.getElementById('search-stocks');
-    var searchStocksBtn = document.getElementById('search-btn-stocks');
-    if(searchStocks) {
-        searchStocks.addEventListener('keydown', function(e){ if(e.key==='Enter') doSearch('stocks-tab'); });
-    }
-    if(searchStocksBtn) {
-        searchStocksBtn.addEventListener('click', function(){ doSearch('stocks-tab'); });
-    }
 
     wireSortBars();
     stockData.loaded=true;
