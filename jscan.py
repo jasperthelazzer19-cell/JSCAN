@@ -440,27 +440,29 @@ def get_crypto_chart(symbol):
                     return [{"t": int(c[0])*1000, "p": round(float(c[4]), 8)} for c in candles]
         except:
             pass
-    # Fallback to Binance
+    # Fallback to Binance klines
     binance_pair = info.get("binance")
     if binance_pair:
         try:
             r = requests.get("https://api.binance.com/api/v3/klines",
-                params={"symbol": binance_pair, "interval": "1h", "limit": 24}, timeout=8)
-            candles = r.json()
-            if isinstance(candles, list) and len(candles) > 0:
-                return [{"t": int(c[0]), "p": round(float(c[4]), 8)} for c in candles]
-        except:
+                params={"symbol": binance_pair, "interval": "1h", "limit": 24}, timeout=10)
+            if r.status_code == 200:
+                candles = r.json()
+                if isinstance(candles, list) and len(candles) > 0:
+                    return [{"t": int(c[0]), "p": round(float(c[4]), 8)} for c in candles]
+        except Exception as e:
             pass
-    # Also try Bybit as last resort
+    # Fallback to Bybit klines
     bybit_pair = info.get("bybit")
     if bybit_pair:
         try:
             r = requests.get("https://api.bybit.com/v5/market/kline",
-                params={"category": "spot", "symbol": bybit_pair, "interval": "60", "limit": 24}, timeout=8)
-            data = r.json().get("result", {}).get("list", [])
-            if data:
-                return [{"t": int(c[0]), "p": round(float(c[4]), 8)} for c in reversed(data)]
-        except:
+                params={"category": "spot", "symbol": bybit_pair, "interval": "60", "limit": 24}, timeout=10)
+            if r.status_code == 200:
+                data = r.json().get("result", {}).get("list", [])
+                if data:
+                    return [{"t": int(c[0]), "p": round(float(c[4]), 8)} for c in reversed(data)]
+        except Exception as e:
             pass
     return []
 
@@ -1575,8 +1577,8 @@ window.onload=function(){
   <button class="tab-btn" id="tab-stocks" onclick="switchTab('stocks')">Stocks</button>
   <button class="tab-btn" id="tab-forex" onclick="switchTab('forex')">Forex</button>
   <button class="tab-btn" id="tab-sentiment" onclick="switchTab('sentiment')">&#128200; Sentiment</button>
-  <button class="tab-btn" id="tab-accuracy" onclick="switchTab('accuracy')">&#127919; Accuracy</button>
   <button class="tab-btn" id="tab-brief" onclick="switchTab('brief')">&#128202; Daily Brief</button>
+  <button class="tab-btn" id="tab-accuracy" onclick="switchTab('accuracy')">&#129302; AI Accuracy</button>
 </div>
 <div class="container">
   <div class="tab-content active" id="content-crypto">
@@ -1590,9 +1592,6 @@ window.onload=function(){
   </div>
   <div class="tab-content" id="content-sentiment">
     <div id="sentiment-data"><div class="loading-screen"><div class="spinner"></div><div class="ld">Loading sentiment data...</div></div></div>
-  </div>
-  <div class="tab-content" id="content-accuracy">
-    <div id="accuracy-data"><div class="loading-screen"><div class="spinner"></div><div class="ld">Loading accuracy data...</div></div></div>
   </div>
   <div class="tab-content" id="content-brief">
     <div style="max-width:660px;margin:40px auto;text-align:center">
@@ -1614,6 +1613,13 @@ window.onload=function(){
         </div>
       </div>
     </div>
+  </div>
+  <div class="tab-content" id="content-accuracy">
+    <div style="max-width:800px;margin:0 auto 28px">
+      <h2 style="font-size:1.3em;font-weight:700;color:#fff;margin-bottom:10px">AI Model Accuracy</h2>
+      <p style="color:#555;font-size:.85em;line-height:1.7">JSCAN uses a multi-agent AI system powered by Claude. Each morning, four specialized sub-agents independently analyze news sentiment, technical indicators, market momentum, and macro context for 100+ stocks. Their signals are synthesized by a portfolio manager agent into a final GREEN, YELLOW, or RED call. Results are scored the following day against actual price movement. This tracker shows every call made and whether it was correct — fully transparent, no cherry picking.</p>
+    </div>
+    <div id="accuracy-data"><div class="loading-screen"><div class="spinner"></div><div class="ld">Loading accuracy data...</div></div></div>
   </div>
 </div>
 </body>
