@@ -2,6 +2,7 @@ from flask import Flask, render_template_string, jsonify
 import requests
 from datetime import datetime, timedelta
 import os
+import yfinance as yf
 
 app = Flask(__name__)
 
@@ -290,13 +291,13 @@ TOP_STOCKS = [
     # Next 50
     "SNOW","PLTR","DDOG","NET","CRWD","ZS","OKTA","MDB","GTLB","HUBS",
     "TWLO","ZM","DOCU","BOX","WORK","PATH","APPN","VCRA","CDAY","PEGA",
-    "SHOP","SQ","PYPL","AFRM","COIN","HOOD","SOFI","UPST","LC","OPFI",
+    "SHOP","PYPL","AFRM","COIN","HOOD","SOFI","UPST","LC","OPFI",
     "RIVN","LCID","NIO","XPEV","LI","FSR","GOEV","WKHS","RIDE","SOLO",
     "RBLX","U","EA","TTWO","ATVI","NTES","BILI","IQ","TME","HUYA",
     # Next 50
-    "DIS","CMCSA","PARA","WBD","FOXA","NYT","NWSA","IPG","OMC","WPP",
+    "DIS","CMCSA","WBD","FOXA","NYT","NWSA","IPG","OMC","WPP",
     "SPOT","SNAP","PINS","MTCH","BMBL","YELP","ANGI","IAC","CARS","CDK",
-    "CHTR","T","VZ","TMUS","LUMN","DISH","SIRI","IACI","GTN","SSP",
+    "CHTR","T","VZ","TMUS","LUMN","SIRI","IACI","GTN","SSP",
     "GS","MS","BX","KKR","APO","CG","ARES","OWL","STEP","BLUE",
     "WM","RSG","CWST","CLH","GFL","SRCL","HCCI","NREO","FNV","GOLD",
     # Next 50
@@ -358,90 +359,41 @@ def fetch_coingecko_prices():
     except Exception as e:
         return {}
 
-def fetch_binance_prices():
-    try:
-        r = requests.get("https://api.binance.com/api/v3/ticker/24hr", timeout=20)
-        return {d["symbol"]: {"price": round(float(d["lastPrice"]),8), "change": round(float(d["priceChangePercent"]),2)} for d in r.json()}
-    except:
-        return {}
-
-def fetch_kraken_prices():
-    pairs = [v["kraken"] for v in CRYPTO_COINS.values() if v.get("kraken")]
-    try:
-        r = requests.get("https://api.kraken.com/0/public/Ticker", params={"pair": ",".join(pairs)}, timeout=20)
-        result = r.json().get("result", {})
-        out = {}
-        for key, val in result.items():
-            price = round(float(val["c"][0]), 8)
-            open_price = float(val["o"])
-            change = round(((price - open_price) / open_price) * 100, 2) if open_price else 0
-            out[key] = {"price": price, "change": change}
-        return out
-    except:
-        return {}
-
-def fetch_coinbase_prices():
-    return {}
-
-def fetch_bybit_prices():
-    try:
-        r = requests.get("https://api.bybit.com/v5/market/tickers", params={"category": "spot"}, timeout=20)
-        return {d["symbol"]: {"price": round(float(d["lastPrice"]),8), "change": round(float(d.get("price24hPcnt","0"))*100,2)} for d in r.json().get("result",{}).get("list",[])}
-    except:
-        return {}
-
 def get_crypto_prices():
-    binance = fetch_binance_prices()
-    kraken = fetch_kraken_prices()
-    coinbase = fetch_coinbase_prices()
-    bybit = fetch_bybit_prices()
-    coingecko = {}
-    if not binance and not kraken and not bybit:
-        coingecko = fetch_coingecko_prices()
+    """CoinGecko only — Binance/Kraken/Bybit blocked from Railway US-East."""
+    cg = fetch_coingecko_prices()
     result = {}
     for sym, info in CRYPTO_COINS.items():
         exchanges = {}
         changes = []
-        if coingecko and sym in coingecko:
-            exchanges["CoinGecko"] = coingecko[sym]["price"]
-            changes.append(coingecko[sym]["change"])
-        if info.get("binance") and info["binance"] in binance:
-            d = binance[info["binance"]]
-            exchanges["Binance"] = d["price"]
-            changes.append(d["change"])
-        if info.get("kraken"):
-            for key in kraken:
-                if info["kraken"].upper() in key.upper() or key.upper() in info["kraken"].upper():
-                    d = kraken[key]
-                    exchanges["Kraken"] = d["price"]
-                    changes.append(d["change"])
-                    break
-        if info.get("coinbase") and info["coinbase"] in coinbase:
-            d = coinbase[info["coinbase"]]
-            exchanges["Coinbase"] = d["price"]
-            changes.append(d["change"])
-        if info.get("bybit") and info["bybit"] in bybit:
-            d = bybit[info["bybit"]]
-            exchanges["Bybit"] = d["price"]
-            changes.append(d["change"])
-        avg_change = round(sum(changes)/len(changes), 2) if changes else 0
+        if sym in cg:
+            exchanges["CoinGecko"] = cg[sym]["price"]
+            changes.append(cg[sym]["change"])
+        avg_change = round(sum(changes) / len(changes), 2) if changes else 0
         result[sym] = {"name": info["name"], "symbol": sym, "exchanges": exchanges, "change24h": avg_change}
     return result
 
 def get_crypto_chart(symbol):
-    info = CRYPTO_COINS.get(symbol.upper(), {})
-    kraken_pair = info.get("kraken")
-    if kraken_pair:
-        try:
-            r = requests.get("https://api.kraken.com/0/public/OHLC", params={"pair": kraken_pair, "interval": 60}, timeout=8)
-            data = r.json().get("result", {})
-            for key in data:
-                if key != "last":
-                    candles = data[key][-24:]
-                    return [{"t": int(c[0])*1000, "p": round(float(c[4]), 8)} for c in candles]
-        except:
-            pass
-    return []
+    """24h chart via CoinGecko market_chart endpoint."""
+    coin_id = COINGECKO_IDS.get(symbol.upper())
+    if not coin_id:
+        return []
+    try:
+        r = requests.get(
+            f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart",
+            params={"vs_currency": "usd", "days": 1},
+            timeout=10
+        )
+        if r.status_code != 200:
+            return []
+        prices = r.json().get("prices", [])
+        # Trim to ~50 points for payload size
+        if len(prices) > 50:
+            step = max(1, len(prices) // 50)
+            prices = prices[::step]
+        return [{"t": int(p[0]), "p": round(float(p[1]), 8)} for p in prices]
+    except Exception:
+        return []
 
 # Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ STOCKS DATA (Polygon.io free tier) Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 import concurrent.futures
@@ -490,7 +442,7 @@ STOCK_NAMES = {
     "CRWD":"CrowdStrike","ZS":"Zscaler Inc.","OKTA":"Okta Inc.","MDB":"MongoDB Inc.",
     "GTLB":"GitLab Inc.","HUBS":"HubSpot Inc.","TWLO":"Twilio Inc.","ZM":"Zoom Video",
     "DOCU":"DocuSign Inc.","BOX":"Box Inc.","PATH":"UiPath Inc.","APPN":"Appian Corp.",
-    "SHOP":"Shopify Inc.","SQ":"Block Inc.","PYPL":"PayPal Holdings","AFRM":"Affirm Holdings",
+    "SHOP":"Shopify Inc.","PYPL":"PayPal Holdings","AFRM":"Affirm Holdings",
     "COIN":"Coinbase Global","HOOD":"Robinhood Markets","SOFI":"SoFi Technologies",
     "UPST":"Upstart Holdings","LC":"LendingClub","OPFI":"OppFi Inc.",
     "RIVN":"Rivian Automotive","LCID":"Lucid Group","NIO":"NIO Inc.","XPEV":"XPeng Inc.",
@@ -498,12 +450,12 @@ STOCK_NAMES = {
     "RBLX":"Roblox Corp.","U":"Unity Software","EA":"Electronic Arts","TTWO":"Take-Two Interactive",
     "ATVI":"Activision Blizzard","NTES":"NetEase Inc.","BILI":"Bilibili Inc.","IQ":"iQIYI Inc.",
     "TME":"Tencent Music","HUYA":"Huya Inc.","DIS":"Walt Disney Co.","CMCSA":"Comcast Corp.",
-    "PARA":"Paramount Global","WBD":"Warner Bros Discovery","FOXA":"Fox Corp.",
+    "WBD":"Warner Bros Discovery","FOXA":"Fox Corp.",
     "NYT":"New York Times","NWSA":"News Corp","IPG":"Interpublic Group","OMC":"Omnicom Group",
     "SPOT":"Spotify Technology","SNAP":"Snap Inc.","PINS":"Pinterest Inc.","MTCH":"Match Group",
     "BMBL":"Bumble Inc.","YELP":"Yelp Inc.","ANGI":"Angi Inc.","IAC":"IAC Inc.",
     "CHTR":"Charter Communications","T":"AT&T Inc.","VZ":"Verizon Communications",
-    "TMUS":"T-Mobile US","LUMN":"Lumen Technologies","DISH":"Dish Network","SIRI":"Sirius XM",
+    "TMUS":"T-Mobile US","LUMN":"Lumen Technologies","SIRI":"Sirius XM",
     "BX":"Blackstone Inc.","KKR":"KKR & Co.","APO":"Apollo Global","CG":"Carlyle Group",
     "ARES":"Ares Management","OWL":"Blue Owl Capital",
     "WM":"Waste Management","RSG":"Republic Services","CWST":"Casella Waste","CLH":"Clean Harbors",
@@ -573,22 +525,35 @@ def get_stock_prices():
     return result
 
 def get_stock_chart(symbol):
-    poly_sym = symbol.replace("-", ".")
-    # Try last 7 days to find a trading day with intraday data
-    for days_back in range(0, 7):
-        date = (datetime.now() - timedelta(days=days_back)).strftime("%Y-%m-%d")
-        try:
-            r = requests.get(
-                f"https://api.polygon.io/v2/aggs/ticker/{poly_sym}/range/5/minute/{date}/{date}",
-                params={"adjusted": "true", "sort": "asc", "limit": 200, "apiKey": POLYGON_API_KEY},
-                timeout=10
-            )
-            results = r.json().get("results", [])
-            if results:
-                return [{"t": int(bar["t"]), "p": round(float(bar["c"]), 4)} for bar in results]
-        except:
-            continue
-    return []
+    """Intraday chart via yfinance. Polygon free tier doesn't include intraday bars."""
+    try:
+        ticker = yf.Ticker(symbol)
+        # Most recent trading day at 5-min granularity
+        hist = ticker.history(period="1d", interval="5m", auto_adjust=True)
+        if hist.empty or len(hist) < 2:
+            # Fallback: last 5 days hourly (covers weekends/holidays)
+            hist = ticker.history(period="5d", interval="60m", auto_adjust=True)
+        if hist.empty:
+            return []
+        result = []
+        for ts, row in hist.iterrows():
+            close = row.get("Close")
+            if close is None:
+                continue
+            try:
+                close_f = float(close)
+            except (ValueError, TypeError):
+                continue
+            if close_f != close_f:  # NaN
+                continue
+            try:
+                t_ms = int(ts.timestamp() * 1000)
+            except Exception:
+                continue
+            result.append({"t": t_ms, "p": round(close_f, 4)})
+        return result
+    except Exception:
+        return []
 
 # Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ FOREX DATA Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 def get_rate_for_pair(rates_dict, base, quote):
@@ -872,10 +837,7 @@ var cryptoData = {};
 var stockData = {};
 
 var CRYPTO_LINKS = {
-    "Binance":"https://www.binance.com",
-    "Kraken":"https://www.kraken.com",
-    "Coinbase":"https://www.coinbase.com",
-    "Bybit":"https://www.bybit.com"
+    "CoinGecko":"https://www.coingecko.com"
 };
 
 function fmt(p) {
