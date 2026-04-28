@@ -6,8 +6,11 @@ import os
 import yfinance as yf
 
 CRYPTOCOMPARE_API_KEY = os.environ.get("CRYPTOCOMPARE_API_KEY", "")
+COINGECKO_API_KEY = os.environ.get("COINGECKO_API_KEY", "")
 _crypto_cache = {"data": None, "ts": 0.0}
 CRYPTO_CACHE_TTL = 60  # seconds — server-side cache so 15s frontend poll doesn't hammer the API
+_chart_cache = {}  # {symbol: (data, ts)}
+CHART_CACHE_TTL = 300  # 5 minutes — chart data updates slowly
 
 app = Flask(__name__)
 
@@ -446,26 +449,54 @@ def get_crypto_prices():
     return result
 
 def get_crypto_chart(symbol):
-    """24h chart via CoinGecko market_chart endpoint."""
-    coin_id = COINGECKO_IDS.get(symbol.upper())
-    if not coin_id:
-        return []
+    """24h chart with 5-min server cache. CryptoCompare histohour primary, CoinGecko fallback."""
+    sym = symbol.upper()
+    now = time.time()
+    cached = _chart_cache.get(sym)
+    if cached and now - cached[1] < CHART_CACHE_TTL:
+        return cached[0]
+
+    result = []
+
+    # Try CryptoCompare histohour (cross-exchange aggregate, no exchange filter)
     try:
+        params = {"fsym": sym, "tsym": "USD", "limit": 24}
+        if CRYPTOCOMPARE_API_KEY:
+            params["api_key"] = CRYPTOCOMPARE_API_KEY
         r = requests.get(
-            f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart",
-            params={"vs_currency": "usd", "days": 1},
-            timeout=10
+            "https://min-api.cryptocompare.com/data/v2/histohour",
+            params=params,
+            timeout=8
         )
-        if r.status_code != 200:
-            return []
-        prices = r.json().get("prices", [])
-        # Trim to ~50 points for payload size
-        if len(prices) > 50:
-            step = max(1, len(prices) // 50)
-            prices = prices[::step]
-        return [{"t": int(p[0]), "p": round(float(p[1]), 8)} for p in prices]
+        if r.status_code == 200:
+            bars = r.json().get("Data", {}).get("Data", [])
+            result = [{"t": int(b["time"]) * 1000, "p": round(float(b["close"]), 8)} for b in bars if b.get("close")]
     except Exception:
-        return []
+        pass
+
+    # Fallback: CoinGecko market_chart
+    if not result:
+        coin_id = COINGECKO_IDS.get(sym)
+        if coin_id:
+            try:
+                params = {"vs_currency": "usd", "days": 1}
+                headers = {"x-cg-demo-api-key": COINGECKO_API_KEY} if COINGECKO_API_KEY else {}
+                r = requests.get(
+                    f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart",
+                    params=params, headers=headers, timeout=10
+                )
+                if r.status_code == 200:
+                    prices = r.json().get("prices", [])
+                    if len(prices) > 50:
+                        step = max(1, len(prices) // 50)
+                        prices = prices[::step]
+                    result = [{"t": int(p[0]), "p": round(float(p[1]), 8)} for p in prices]
+            except Exception:
+                pass
+
+    if result:
+        _chart_cache[sym] = (result, now)
+    return result
 
 # Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ STOCKS DATA (Polygon.io free tier) Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 import concurrent.futures
