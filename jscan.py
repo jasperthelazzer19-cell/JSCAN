@@ -1,8 +1,13 @@
 from flask import Flask, render_template_string, jsonify
 import requests
+import time
 from datetime import datetime, timedelta
 import os
 import yfinance as yf
+
+CRYPTOCOMPARE_API_KEY = os.environ.get("CRYPTOCOMPARE_API_KEY", "")
+_crypto_cache = {"data": None, "ts": 0.0}
+CRYPTO_CACHE_TTL = 60  # seconds — server-side cache so 15s frontend poll doesn't hammer the API
 
 app = Flask(__name__)
 
@@ -359,13 +364,27 @@ def fetch_coingecko_prices():
     except Exception as e:
         return {}
 
-def fetch_cryptocompare_for_exchange(exchange):
-    """Per-exchange spot prices via CryptoCompare relay (proxies blocked exchanges)."""
-    syms = ",".join(CRYPTO_COINS.keys())
+def _chunk_symbols(symbols, max_chars=280):
+    """Yield batches whose comma-joined form fits in max_chars (CryptoCompare fsyms limit ~300)."""
+    batch, batch_chars = [], 0
+    for s in symbols:
+        added = len(s) + (1 if batch else 0)  # +1 for comma separator
+        if batch and batch_chars + added > max_chars:
+            yield batch
+            batch, batch_chars = [], 0
+        batch.append(s)
+        batch_chars += added
+    if batch:
+        yield batch
+
+def _fetch_chunk(exchange, batch):
+    params = {"fsyms": ",".join(batch), "tsyms": "USD", "e": exchange}
+    if CRYPTOCOMPARE_API_KEY:
+        params["api_key"] = CRYPTOCOMPARE_API_KEY
     try:
         r = requests.get(
             "https://min-api.cryptocompare.com/data/pricemultifull",
-            params={"fsyms": syms, "tsyms": "USD", "e": exchange},
+            params=params,
             timeout=10
         )
         if r.status_code != 200:
@@ -383,10 +402,27 @@ def fetch_cryptocompare_for_exchange(exchange):
     except Exception:
         return {}
 
+def fetch_cryptocompare_for_exchange(exchange):
+    """Per-exchange spot prices via CryptoCompare. Chunked to fit fsyms 300-char limit."""
+    out = {}
+    syms = list(CRYPTO_COINS.keys())
+    chunks = list(_chunk_symbols(syms))
+    if not chunks:
+        return out
+    # Fire chunks in parallel for this exchange
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=min(8, len(chunks))) as pool:
+        for chunk_result in pool.map(lambda b: _fetch_chunk(exchange, b), chunks):
+            out.update(chunk_result)
+    return out
+
 def get_crypto_prices():
-    """Multi-exchange prices via CryptoCompare relay.
-    Direct Binance/Kraken/Bybit calls are blocked from Railway US-East;
-    CryptoCompare proxies them and is reachable."""
+    """Multi-exchange prices via CryptoCompare relay, with 60s server-side cache.
+    Direct Binance/Kraken/Bybit calls are blocked from Railway US-East."""
+    now = time.time()
+    if _crypto_cache["data"] and now - _crypto_cache["ts"] < CRYPTO_CACHE_TTL:
+        return _crypto_cache["data"]
+
     from concurrent.futures import ThreadPoolExecutor
     exchange_names = ["Binance", "Kraken", "Coinbase", "Bybit"]
     with ThreadPoolExecutor(max_workers=4) as pool:
@@ -404,6 +440,9 @@ def get_crypto_prices():
                 changes.append(ex_data[sym]["change"])
         avg_change = round(sum(changes) / len(changes), 2) if changes else 0
         result[sym] = {"name": info["name"], "symbol": sym, "exchanges": exchanges, "change24h": avg_change}
+
+    _crypto_cache["data"] = result
+    _crypto_cache["ts"] = now
     return result
 
 def get_crypto_chart(symbol):
