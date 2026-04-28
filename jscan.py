@@ -359,16 +359,49 @@ def fetch_coingecko_prices():
     except Exception as e:
         return {}
 
+def fetch_cryptocompare_for_exchange(exchange):
+    """Per-exchange spot prices via CryptoCompare relay (proxies blocked exchanges)."""
+    syms = ",".join(CRYPTO_COINS.keys())
+    try:
+        r = requests.get(
+            "https://min-api.cryptocompare.com/data/pricemultifull",
+            params={"fsyms": syms, "tsyms": "USD", "e": exchange},
+            timeout=10
+        )
+        if r.status_code != 200:
+            return {}
+        raw = r.json().get("RAW", {})
+        out = {}
+        for sym, mapping in raw.items():
+            usd = mapping.get("USD") or {}
+            price = usd.get("PRICE")
+            if price is None:
+                continue
+            change = usd.get("CHANGEPCT24HOUR") or 0
+            out[sym] = {"price": round(float(price), 8), "change": round(float(change), 2)}
+        return out
+    except Exception:
+        return {}
+
 def get_crypto_prices():
-    """CoinGecko only — Binance/Kraken/Bybit blocked from Railway US-East."""
-    cg = fetch_coingecko_prices()
+    """Multi-exchange prices via CryptoCompare relay.
+    Direct Binance/Kraken/Bybit calls are blocked from Railway US-East;
+    CryptoCompare proxies them and is reachable."""
+    from concurrent.futures import ThreadPoolExecutor
+    exchange_names = ["Binance", "Kraken", "Coinbase", "Bybit"]
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        futures = {name: pool.submit(fetch_cryptocompare_for_exchange, name) for name in exchange_names}
+        per_exchange = {name: f.result() for name, f in futures.items()}
+
     result = {}
     for sym, info in CRYPTO_COINS.items():
         exchanges = {}
         changes = []
-        if sym in cg:
-            exchanges["CoinGecko"] = cg[sym]["price"]
-            changes.append(cg[sym]["change"])
+        for ex_name in exchange_names:
+            ex_data = per_exchange.get(ex_name, {})
+            if sym in ex_data:
+                exchanges[ex_name] = ex_data[sym]["price"]
+                changes.append(ex_data[sym]["change"])
         avg_change = round(sum(changes) / len(changes), 2) if changes else 0
         result[sym] = {"name": info["name"], "symbol": sym, "exchanges": exchanges, "change24h": avg_change}
     return result
@@ -837,7 +870,10 @@ var cryptoData = {};
 var stockData = {};
 
 var CRYPTO_LINKS = {
-    "CoinGecko":"https://www.coingecko.com"
+    "Binance":"https://www.binance.com",
+    "Kraken":"https://www.kraken.com",
+    "Coinbase":"https://www.coinbase.com",
+    "Bybit":"https://www.bybit.com"
 };
 
 function fmt(p) {
