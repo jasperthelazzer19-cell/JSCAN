@@ -1094,7 +1094,7 @@ function renderPortfolioLocked(reason){
         '<div style="font-size:2em;margin-bottom:14px">&#128274;</div>'+
         '<div style="font-size:1.3em;font-weight:700;color:#fff;margin-bottom:10px">AI Portfolio &mdash; Premium</div>'+
         '<div style="color:#888;font-size:.92em;line-height:1.6;margin-bottom:24px">'+msg+'</div>'+
-        '<a href="'+AGENT_BASE+'" target="_blank" style="display:inline-block;background:#00ff88;color:#000;font-weight:700;padding:13px 30px;border-radius:8px;text-decoration:none;font-size:.95em">Subscribe &mdash; $10/month</a>'+
+        '<a href="https://buy.stripe.com/4gM9AUa0f4XPcic8ne5AQ00" target="_blank" style="display:inline-block;background:#00ff88;color:#000;font-weight:700;padding:13px 30px;border-radius:8px;text-decoration:none;font-size:.95em">Subscribe &mdash; $5/month</a>'+
         '<div style="color:#444;font-size:.78em;margin-top:18px">After subscribing, you will get a magic link in your daily brief that unlocks this tab automatically.</div>'+
         '</div>';
 }
