@@ -381,7 +381,9 @@ def _chunk_symbols(symbols, max_chars=280):
         yield batch
 
 def _fetch_chunk(exchange, batch):
-    params = {"fsyms": ",".join(batch), "tsyms": "USD", "e": exchange}
+    # Query both USD and USDT — Binance/Bybit primarily quote in USDT.
+    # Stablecoin USDT is pegged to $1 so we treat it as USD for display.
+    params = {"fsyms": ",".join(batch), "tsyms": "USD,USDT", "e": exchange}
     if CRYPTOCOMPARE_API_KEY:
         params["api_key"] = CRYPTOCOMPARE_API_KEY
     try:
@@ -395,11 +397,12 @@ def _fetch_chunk(exchange, batch):
         raw = r.json().get("RAW", {})
         out = {}
         for sym, mapping in raw.items():
-            usd = mapping.get("USD") or {}
-            price = usd.get("PRICE")
+            # Prefer USD; fall back to USDT
+            d = mapping.get("USD") or mapping.get("USDT") or {}
+            price = d.get("PRICE")
             if price is None:
                 continue
-            change = usd.get("CHANGEPCT24HOUR") or 0
+            change = d.get("CHANGEPCT24HOUR") or 0
             out[sym] = {"price": round(float(price), 8), "change": round(float(change), 2)}
         return out
     except Exception:
