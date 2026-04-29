@@ -1059,6 +1059,157 @@ function switchTab(tab){
     if(tab==='forex'&&!window.forexLoaded) loadForex();
     if(tab==='accuracy'&&!window.accuracyLoaded) loadAccuracy();
     if(tab==='sentiment'&&!window.sentimentLoaded) loadSentiment();
+    if(tab==='portfolio') loadPortfolio();
+}
+
+// ─── AI PORTFOLIO (paid only) ─────────────────────────────
+var AGENT_BASE='https://jscan-agent.up.railway.app';
+
+function getPremiumKey(){
+    // Read from URL once, persist to localStorage
+    var params=new URLSearchParams(window.location.search);
+    var fromUrl=params.get('key');
+    if(fromUrl){
+        try{ localStorage.setItem('jscan_premium_key', fromUrl); }catch(e){}
+        // Strip key from URL so it doesn't sit in browser history
+        params.delete('key');
+        var newSearch=params.toString();
+        var url=window.location.pathname+(newSearch?'?'+newSearch:'')+window.location.hash;
+        window.history.replaceState({}, '', url);
+        return fromUrl;
+    }
+    try{ return localStorage.getItem('jscan_premium_key'); }catch(e){ return null; }
+}
+
+function clearPremiumKey(){
+    try{ localStorage.removeItem('jscan_premium_key'); }catch(e){}
+}
+
+function renderPortfolioLocked(reason){
+    var msg=reason==='invalid'
+        ? 'Your premium key is invalid or expired. Subscribe again to regain access.'
+        : 'Subscribe to see exactly what the agent is holding right now &mdash; live positions, P&L, recent trades, and track record.';
+    document.getElementById('portfolio-data').innerHTML=
+        '<div style="max-width:560px;margin:60px auto;text-align:center;padding:40px 24px;background:#0d0d0d;border:1px solid #1c1c1c;border-radius:14px">'+
+        '<div style="font-size:2em;margin-bottom:14px">&#128274;</div>'+
+        '<div style="font-size:1.3em;font-weight:700;color:#fff;margin-bottom:10px">AI Portfolio &mdash; Premium</div>'+
+        '<div style="color:#888;font-size:.92em;line-height:1.6;margin-bottom:24px">'+msg+'</div>'+
+        '<a href="'+AGENT_BASE+'" target="_blank" style="display:inline-block;background:#00ff88;color:#000;font-weight:700;padding:13px 30px;border-radius:8px;text-decoration:none;font-size:.95em">Subscribe &mdash; $10/month</a>'+
+        '<div style="color:#444;font-size:.78em;margin-top:18px">After subscribing, you\'ll get a magic link in your daily brief that unlocks this tab automatically.</div>'+
+        '</div>';
+}
+
+function fmtUSD(n){
+    if(n===null||n===undefined||isNaN(n)) return '&mdash;';
+    var sign=n<0?'-':'';
+    var abs=Math.abs(n);
+    return sign+'$'+abs.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+function fmtPct(n){
+    if(n===null||n===undefined||isNaN(n)) return '&mdash;';
+    return (n>=0?'+':'')+n.toFixed(2)+'%';
+}
+
+function renderPortfolio(d){
+    var pl_color=(d.day_pl||0)>=0?'#00ff88':'#ff4444';
+    var positions=(d.positions||[]);
+    var trades=(d.recent_trades||[]);
+    var tr=d.track_record||{};
+
+    var posRows='';
+    if(positions.length){
+        positions.forEach(function(p){
+            var plc=p.pl>=0?'#00ff88':'#ff4444';
+            posRows+='<tr style="border-bottom:1px solid #111">'+
+                '<td style="padding:12px 16px;color:#fff;font-weight:700">'+p.symbol+'</td>'+
+                '<td style="padding:12px 16px;color:#666;font-size:.85em">'+(p.name||'')+'</td>'+
+                '<td style="padding:12px 16px;color:#aaa;text-align:right;font-variant-numeric:tabular-nums">'+p.qty+'</td>'+
+                '<td style="padding:12px 16px;color:#aaa;text-align:right;font-variant-numeric:tabular-nums">'+fmtUSD(p.avg_cost)+'</td>'+
+                '<td style="padding:12px 16px;color:#fff;text-align:right;font-variant-numeric:tabular-nums">'+fmtUSD(p.current)+'</td>'+
+                '<td style="padding:12px 16px;color:#fff;text-align:right;font-variant-numeric:tabular-nums">'+fmtUSD(p.market_value)+'</td>'+
+                '<td style="padding:12px 16px;color:'+plc+';text-align:right;font-weight:600;font-variant-numeric:tabular-nums">'+fmtUSD(p.pl)+' ('+fmtPct(p.pl_pct)+')</td>'+
+                '</tr>';
+        });
+    } else {
+        posRows='<tr><td colspan="7" style="padding:30px;text-align:center;color:#444">No open positions right now</td></tr>';
+    }
+
+    var tradeRows='';
+    if(trades.length){
+        trades.forEach(function(t){
+            var sideColor=t.side==='buy'?'#00ff88':'#ff4444';
+            var date=t.filled_at?new Date(t.filled_at).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'&mdash;';
+            tradeRows+='<tr style="border-bottom:1px solid #111">'+
+                '<td style="padding:10px 16px;color:#666;font-size:.82em">'+date+'</td>'+
+                '<td style="padding:10px 16px;color:#fff;font-weight:700">'+t.symbol+'</td>'+
+                '<td style="padding:10px 16px;color:'+sideColor+';font-weight:700;text-transform:uppercase;font-size:.82em">'+t.side+'</td>'+
+                '<td style="padding:10px 16px;color:#aaa;text-align:right;font-variant-numeric:tabular-nums">'+t.qty+'</td>'+
+                '<td style="padding:10px 16px;color:#aaa;text-align:right;font-variant-numeric:tabular-nums">'+fmtUSD(t.price)+'</td>'+
+                '<td style="padding:10px 16px;color:#fff;text-align:right;font-variant-numeric:tabular-nums">'+fmtUSD(t.cost)+'</td>'+
+                '</tr>';
+        });
+    } else {
+        tradeRows='<tr><td colspan="6" style="padding:30px;text-align:center;color:#444">No filled trades yet</td></tr>';
+    }
+
+    var trHtml='';
+    Object.keys(tr).forEach(function(action){
+        var s=tr[action];
+        var color=action==='BUY'?'#00ff88':action==='SELL'?'#ff4444':'#f0c040';
+        trHtml+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:10px;padding:16px 18px;flex:1;min-width:160px">'+
+            '<div style="display:flex;justify-content:space-between;margin-bottom:8px">'+
+            '<span style="color:'+color+';font-weight:700;font-size:.82em;letter-spacing:.5px">'+action+'</span>'+
+            '<span style="color:#fff;font-weight:600">'+(s.accuracy||0)+'%</span></div>'+
+            '<div style="background:#1a1a1a;border-radius:3px;height:6px;overflow:hidden"><div style="background:'+color+';height:100%;width:'+(s.accuracy||0)+'%"></div></div>'+
+            '<div style="color:#555;font-size:.72em;margin-top:6px">'+(s.correct||0)+'/'+(s.total||0)+' calls &middot; avg move '+(s.avg_move||0)+'%</div>'+
+            '</div>';
+    });
+
+    var html=''+
+        '<div style="max-width:1200px;margin:0 auto">'+
+        '<div style="margin-bottom:24px"><h2 style="font-size:1.4em;font-weight:700;color:#fff;margin-bottom:6px">&#128176; AI Portfolio</h2>'+
+        '<p style="color:#555;font-size:.85em">Live paper-trading account. The agent buys, holds, and sells based on its daily signals.</p></div>'+
+        // Top stat cards
+        '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px">'+
+            '<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:18px 22px"><div style="font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">Portfolio Value</div><div style="font-size:1.8em;font-weight:700;color:#00ff88;font-variant-numeric:tabular-nums">'+fmtUSD(d.portfolio_value)+'</div></div>'+
+            '<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:18px 22px"><div style="font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">Cash</div><div style="font-size:1.8em;font-weight:700;color:#e0e0e0;font-variant-numeric:tabular-nums">'+fmtUSD(d.cash)+'</div></div>'+
+            '<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:18px 22px"><div style="font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">Today\'s P&L</div><div style="font-size:1.8em;font-weight:700;color:'+pl_color+';font-variant-numeric:tabular-nums">'+fmtUSD(d.day_pl)+' <span style="font-size:.55em;font-weight:600">('+fmtPct(d.day_pl_pct)+')</span></div></div>'+
+            '<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:18px 22px"><div style="font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">Open Positions</div><div style="font-size:1.8em;font-weight:700;color:#e0e0e0;font-variant-numeric:tabular-nums">'+positions.length+'</div></div>'+
+        '</div>'+
+        // Track record
+        (Object.keys(tr).length?'<div style="margin-bottom:24px"><div style="font-size:.78em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:600;margin-bottom:12px">Agent Track Record (1d horizon)</div><div style="display:flex;gap:12px;flex-wrap:wrap">'+trHtml+'</div></div>':'')+
+        // Positions table
+        '<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;overflow:hidden;margin-bottom:24px">'+
+        '<div style="padding:16px 20px;border-bottom:1px solid #1c1c1c"><div style="font-size:.78em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:600">Open Positions</div></div>'+
+        '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">'+
+        '<thead><tr style="background:#080808"><th style="padding:10px 16px;text-align:left;color:#444;font-size:.68em;text-transform:uppercase;letter-spacing:.7px">Symbol</th><th style="padding:10px 16px;text-align:left;color:#444;font-size:.68em;text-transform:uppercase;letter-spacing:.7px">Name</th><th style="padding:10px 16px;text-align:right;color:#444;font-size:.68em;text-transform:uppercase;letter-spacing:.7px">Qty</th><th style="padding:10px 16px;text-align:right;color:#444;font-size:.68em;text-transform:uppercase;letter-spacing:.7px">Avg Cost</th><th style="padding:10px 16px;text-align:right;color:#444;font-size:.68em;text-transform:uppercase;letter-spacing:.7px">Current</th><th style="padding:10px 16px;text-align:right;color:#444;font-size:.68em;text-transform:uppercase;letter-spacing:.7px">Value</th><th style="padding:10px 16px;text-align:right;color:#444;font-size:.68em;text-transform:uppercase;letter-spacing:.7px">P&L</th></tr></thead>'+
+        '<tbody>'+posRows+'</tbody></table></div></div>'+
+        // Recent trades table
+        '<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;overflow:hidden;margin-bottom:24px">'+
+        '<div style="padding:16px 20px;border-bottom:1px solid #1c1c1c"><div style="font-size:.78em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:600">Recent Trades</div></div>'+
+        '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">'+
+        '<thead><tr style="background:#080808"><th style="padding:10px 16px;text-align:left;color:#444;font-size:.68em;text-transform:uppercase;letter-spacing:.7px">When</th><th style="padding:10px 16px;text-align:left;color:#444;font-size:.68em;text-transform:uppercase;letter-spacing:.7px">Symbol</th><th style="padding:10px 16px;text-align:left;color:#444;font-size:.68em;text-transform:uppercase;letter-spacing:.7px">Side</th><th style="padding:10px 16px;text-align:right;color:#444;font-size:.68em;text-transform:uppercase;letter-spacing:.7px">Qty</th><th style="padding:10px 16px;text-align:right;color:#444;font-size:.68em;text-transform:uppercase;letter-spacing:.7px">Price</th><th style="padding:10px 16px;text-align:right;color:#444;font-size:.68em;text-transform:uppercase;letter-spacing:.7px">Cost</th></tr></thead>'+
+        '<tbody>'+tradeRows+'</tbody></table></div></div>'+
+        '<div style="text-align:right;color:#333;font-size:.72em">As of '+new Date(d.as_of).toLocaleString()+'</div>'+
+        '</div>';
+    document.getElementById('portfolio-data').innerHTML=html;
+}
+
+function loadPortfolio(){
+    var key=getPremiumKey();
+    if(!key){ renderPortfolioLocked('locked'); return; }
+    document.getElementById('portfolio-data').innerHTML='<div class="loading-screen"><div class="spinner"></div><div class="ld">Loading portfolio...</div></div>';
+    fetch(AGENT_BASE+'/api/portfolio?key='+encodeURIComponent(key))
+        .then(function(r){
+            if(r.status===401||r.status===403){ clearPremiumKey(); renderPortfolioLocked('invalid'); return null; }
+            if(!r.ok) throw new Error('http '+r.status);
+            return r.json();
+        })
+        .then(function(d){ if(d) renderPortfolio(d); })
+        .catch(function(e){
+            document.getElementById('portfolio-data').innerHTML='<div class="ld" style="text-align:center;padding:40px">Could not load portfolio: '+e.message+'</div>';
+        });
 }
 
 function loadSentiment(){
@@ -1636,6 +1787,12 @@ window.onload=function(){
     loadStocks();
     loadForex();
     loadSentiment();
+    // If arriving via magic link (?key=...#portfolio) or just #portfolio, switch to that tab.
+    // Calling getPremiumKey strips the key from the URL into localStorage.
+    getPremiumKey();
+    if(window.location.hash==='#portfolio'){
+        switchTab('portfolio');
+    }
 };
 </script>
 </head>
@@ -1665,6 +1822,7 @@ window.onload=function(){
   <button class="tab-btn" id="tab-sentiment" onclick="switchTab('sentiment')">&#128200; Sentiment</button>
   <button class="tab-btn" id="tab-brief" onclick="switchTab('brief')">&#128202; Daily Brief</button>
   <button class="tab-btn" id="tab-accuracy" onclick="switchTab('accuracy')">&#129302; AI Accuracy</button>
+  <button class="tab-btn" id="tab-portfolio" onclick="switchTab('portfolio')">&#128176; AI Portfolio</button>
 </div>
 <div class="container">
   <div class="tab-content active" id="content-crypto">
@@ -1706,6 +1864,9 @@ window.onload=function(){
       <p style="color:#555;font-size:.85em;line-height:1.7">JSCAN uses a multi-agent AI system powered by Claude. Each morning, four specialized sub-agents independently analyze news sentiment, technical indicators, market momentum, and macro context for 100+ stocks. Their signals are synthesized by a portfolio manager agent into a final GREEN, YELLOW, or RED call. Results are scored the following day against actual price movement. This tracker shows every call made and whether it was correct Ã¢ÂÂ fully transparent, no cherry picking.</p>
     </div>
     <div id="accuracy-data"><div class="loading-screen"><div class="spinner"></div><div class="ld">Loading accuracy data...</div></div></div>
+  </div>
+  <div class="tab-content" id="content-portfolio">
+    <div id="portfolio-data"></div>
   </div>
 </div>
 </body>
