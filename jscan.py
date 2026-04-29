@@ -1510,7 +1510,7 @@ function renderStocks(data){
         h+='<div class="stats-bar" style="border-top:1px solid #141414;border-bottom:none">';
         h+='<div class="stat"><div class="stat-label">VWAP</div><div class="stat-value gray">'+(s.vwap?fmt(s.vwap):'-')+'</div></div>';
         h+='<div class="stat"><div class="stat-label">Day Move</div><div class="stat-value '+sc+'">'+changeStr(chg)+'</div></div>';
-        h+='<div class="stat"><div class="stat-label">Source</div><div class="stat-value gray">Polygon.io</div></div>';
+        h+='<div class="stat"><div class="stat-label">Source</div><div class="stat-value gray">Yahoo Finance</div></div>';
         h+='<div class="stat"><div class="stat-label">Prev Close</div><div class="stat-value gray">EOD</div></div>';
         h+='</div>';
         h+='</div>';
@@ -1531,7 +1531,7 @@ function renderStocks(data){
 }
 
 function loadStocks(){
-    document.getElementById('stocks-data').innerHTML='<div class="loading-screen"><div class="spinner"></div><div class="ld">Loading stock data from Polygon.io...</div></div>';
+    document.getElementById('stocks-data').innerHTML='<div class="loading-screen"><div class="spinner"></div><div class="ld">Loading stock data from Yahoo Finance...</div></div>';
     fetch('/api/stocks').then(function(r){return r.json();}).then(function(data){
         if(Object.keys(data).length) renderStocks(data);
         else document.getElementById('stocks-data').innerHTML='<div class="ld" style="text-align:center;padding:40px">Stock data unavailable - market may be closed</div>';
