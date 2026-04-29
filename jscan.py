@@ -1851,8 +1851,12 @@ window.onload=function(){
     <div style="max-width:660px;margin:40px auto;text-align:center">
       <div style="font-size:1.4em;font-weight:700;color:#fff;margin-bottom:8px">JSCAN Daily Brief</div>
       <div style="color:#555;font-size:.9em;margin-bottom:32px;line-height:1.6">Get an AI-powered stock research report delivered to your inbox every morning at 8am. Claude analyzes 100 stocks, flags signals, and executes paper trades automatically.</div>
-      <a href="https://jscan-agent.up.railway.app" target="_blank" style="display:inline-block;background:#00ff88;color:#000;font-weight:700;font-size:1em;padding:14px 32px;border-radius:8px;text-decoration:none;transition:opacity .2s">Subscribe Free -></a>
-      <div style="margin-top:40px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:16px">
+        <a href="https://jscan-agent.up.railway.app" target="_blank" style="display:inline-block;background:transparent;color:#e0e0e0;border:1px solid #2a2a2a;font-weight:700;font-size:1em;padding:13px 24px;border-radius:8px;text-decoration:none;transition:all .2s">Subscribe Free</a>
+        <a href="https://buy.stripe.com/4gM9AUa0f4XPcic8ne5AQ00" target="_blank" style="display:inline-block;background:#00ff88;color:#000;font-weight:700;font-size:1em;padding:14px 28px;border-radius:8px;text-decoration:none;transition:opacity .2s">Upgrade -- $5/month -></a>
+      </div>
+      <div style="color:#555;font-size:.78em;margin-bottom:32px">Premium unlocks full thesis on every signal + live AI Portfolio access</div>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
         <div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:10px;padding:20px 24px;flex:1;min-width:140px">
           <div style="font-size:1.6em;font-weight:700;color:#00ff88">100</div>
           <div style="font-size:.78em;color:#555;margin-top:4px">Stocks Tracked</div>
@@ -1862,8 +1866,8 @@ window.onload=function(){
           <div style="font-size:.78em;color:#555;margin-top:4px">Daily Delivery</div>
         </div>
         <div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:10px;padding:20px 24px;flex:1;min-width:140px">
-          <div style="font-size:1.6em;font-weight:700;color:#00ff88">Free</div>
-          <div style="font-size:.78em;color:#555;margin-top:4px">Always</div>
+          <div style="font-size:1.6em;font-weight:700;color:#00ff88">$5</div>
+          <div style="font-size:.78em;color:#555;margin-top:4px">Per Month</div>
         </div>
       </div>
     </div>
