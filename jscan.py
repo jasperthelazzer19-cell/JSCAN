@@ -1095,7 +1095,7 @@ function renderPortfolioLocked(reason){
         '<div style="font-size:1.3em;font-weight:700;color:#fff;margin-bottom:10px">AI Portfolio &mdash; Premium</div>'+
         '<div style="color:#888;font-size:.92em;line-height:1.6;margin-bottom:24px">'+msg+'</div>'+
         '<a href="'+AGENT_BASE+'" target="_blank" style="display:inline-block;background:#00ff88;color:#000;font-weight:700;padding:13px 30px;border-radius:8px;text-decoration:none;font-size:.95em">Subscribe &mdash; $10/month</a>'+
-        '<div style="color:#444;font-size:.78em;margin-top:18px">After subscribing, you\'ll get a magic link in your daily brief that unlocks this tab automatically.</div>'+
+        '<div style="color:#444;font-size:.78em;margin-top:18px">After subscribing, you will get a magic link in your daily brief that unlocks this tab automatically.</div>'+
         '</div>';
 }
 
@@ -1174,7 +1174,7 @@ function renderPortfolio(d){
         '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px">'+
             '<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:18px 22px"><div style="font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">Portfolio Value</div><div style="font-size:1.8em;font-weight:700;color:#00ff88;font-variant-numeric:tabular-nums">'+fmtUSD(d.portfolio_value)+'</div></div>'+
             '<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:18px 22px"><div style="font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">Cash</div><div style="font-size:1.8em;font-weight:700;color:#e0e0e0;font-variant-numeric:tabular-nums">'+fmtUSD(d.cash)+'</div></div>'+
-            '<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:18px 22px"><div style="font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">Today\'s P&L</div><div style="font-size:1.8em;font-weight:700;color:'+pl_color+';font-variant-numeric:tabular-nums">'+fmtUSD(d.day_pl)+' <span style="font-size:.55em;font-weight:600">('+fmtPct(d.day_pl_pct)+')</span></div></div>'+
+            '<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:18px 22px"><div style="font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">Day P&L</div><div style="font-size:1.8em;font-weight:700;color:'+pl_color+';font-variant-numeric:tabular-nums">'+fmtUSD(d.day_pl)+' <span style="font-size:.55em;font-weight:600">('+fmtPct(d.day_pl_pct)+')</span></div></div>'+
             '<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:18px 22px"><div style="font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">Open Positions</div><div style="font-size:1.8em;font-weight:700;color:#e0e0e0;font-variant-numeric:tabular-nums">'+positions.length+'</div></div>'+
         '</div>'+
         // Track record
