@@ -1297,11 +1297,15 @@ function loadSentiment(){
     });
 }
 
+function flagToAction(f){
+    return f==='GREEN'?'BUY':f==='RED'?'SELL':f==='YELLOW'?'WATCH':f;
+}
+
 function loadAccuracy(){
     window.accuracyLoaded=true;
-    fetch('/api/accuracy').then(function(r){return r.json();}).then(function(data){
+    fetch(AGENT_BASE+'/api/accuracy').then(function(r){return r.json();}).then(function(data){
         if(!data||!data.calls||!data.calls.length){
-            var emptyMsg='<div style="text-align:center;padding:60px;color:#333"><div style="font-size:1.2em;color:#444;margin-bottom:8px">No scored calls yet</div><div style="color:#333;font-size:.85em">Check back after Monday first run</div></div>';
+            var emptyMsg='<div style="text-align:center;padding:60px;color:#333"><div style="font-size:1.2em;color:#444;margin-bottom:8px">No scored calls yet</div><div style="color:#333;font-size:.85em">First scored calls appear after the agent has been running for at least 1 trading day.</div></div>';
             document.getElementById('accuracy-data').innerHTML=emptyMsg;
             return;
         }
@@ -1310,7 +1314,7 @@ function loadAccuracy(){
         var total=calls.length;
         var pct=Math.round(correct/total*100);
         var col=pct>=60?'#00ff88':pct>=50?'#f0c040':'#ff4444';
-        var h='<div style="max-width:800px;margin:0 auto">';
+        var h='<div style="max-width:900px;margin:0 auto">';
         h+='<div style="display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap">';
         h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:20px 28px;flex:1;min-width:140px;text-align:center">';
         h+='<div style="font-size:2.2em;font-weight:700;color:'+col+'">'+pct+'%</div><div style="font-size:.75em;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">Accuracy</div></div>';
@@ -1326,19 +1330,25 @@ function loadAccuracy(){
         h+='<thead><tr style="background:#111;border-bottom:1px solid #1c1c1c">';
         h+='<th style="padding:12px 18px;text-align:left;font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:500">Date</th>';
         h+='<th style="padding:12px 18px;text-align:left;font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:500">Symbol</th>';
-        h+='<th style="padding:12px 18px;text-align:left;font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:500">Signal</th>';
+        h+='<th style="padding:12px 18px;text-align:left;font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:500">Action</th>';
         h+='<th style="padding:12px 18px;text-align:left;font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:500">Price</th>';
+        h+='<th style="padding:12px 18px;text-align:right;font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:500">1d Change</th>';
         h+='<th style="padding:12px 18px;text-align:left;font-size:.7em;color:#444;text-transform:uppercase;letter-spacing:.7px;font-weight:500">Result</th>';
         h+='</tr></thead><tbody>';
-        calls.slice().reverse().forEach(function(c){
-            var fc=c.flag==='GREEN'?'#00ff88':c.flag==='RED'?'#ff4444':'#f0c040';
-            var oc=c.outcome==='correct'?'#00ff88':'#ff4444';
-            var oe=c.outcome==='correct'?'CORRECT':'WRONG';
+        calls.forEach(function(c){
+            var fc=c.flag==='GREEN'?'#00cc66':c.flag==='RED'?'#ff4444':'#f0c040';
+            var oc=c.outcome==='correct'?'#00ff88':c.outcome==='incorrect'?'#ff4444':'#888';
+            var oe=c.outcome==='correct'?'CORRECT':c.outcome==='incorrect'?'WRONG':'NEUTRAL';
+            var chgRaw=c.change_pct;
+            var chgStr=(chgRaw!==null&&chgRaw!==undefined)?(chgRaw>=0?'+':'')+chgRaw.toFixed(2)+'%':'—';
+            var chgColor=(chgRaw>0)?'#00cc66':(chgRaw<0)?'#ff4444':'#555';
+            var actionPill='<span style="display:inline-block;padding:3px 10px;border:1px solid '+fc+';color:'+fc+';border-radius:4px;font-weight:700;font-size:.75em;letter-spacing:.5px">'+flagToAction(c.flag)+'</span>';
             h+='<tr style="border-bottom:1px solid #111">';
             h+='<td style="padding:12px 18px;font-size:.82em;color:#555">'+c.date+'</td>';
             h+='<td style="padding:12px 18px;font-size:.9em;font-weight:700;color:#fff">'+c.symbol+'</td>';
-            h+='<td style="padding:12px 18px;font-size:.82em;font-weight:600;color:'+fc+'">'+c.flag+'</td>';
+            h+='<td style="padding:12px 18px">'+actionPill+'</td>';
             h+='<td style="padding:12px 18px;font-size:.82em;color:#aaa">$'+c.price+'</td>';
+            h+='<td style="padding:12px 18px;font-size:.82em;color:'+chgColor+';font-weight:600;text-align:right;font-variant-numeric:tabular-nums">'+chgStr+'</td>';
             h+='<td style="padding:12px 18px;font-size:.82em;font-weight:700;color:'+oc+'">'+oe+'</td>';
             h+='</tr>';
         });
