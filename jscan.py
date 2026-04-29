@@ -11,6 +11,8 @@ _crypto_cache = {"data": None, "ts": 0.0}
 CRYPTO_CACHE_TTL = 60  # seconds — server-side cache so 15s frontend poll doesn't hammer the API
 _chart_cache = {}  # {symbol: (data, ts)}
 CHART_CACHE_TTL = 300  # 5 minutes — chart data updates slowly
+_stock_cache = {"data": None, "ts": 0.0}
+STOCK_CACHE_TTL = 60
 
 app = Flask(__name__)
 
@@ -275,8 +277,6 @@ CRYPTO_EXCHANGE_LINKS = {
 }
 
 # Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ STOCKS Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
-POLYGON_API_KEY = "AHDx47kyKxiVlcwWs5jP1WjiY2ExUPkC"
-
 TOP_STOCKS = [
     # Top 50 (original)
     "AAPL","MSFT","NVDA","AMZN","GOOGL","META","TSLA","BRK-B","JPM","V",
@@ -582,37 +582,51 @@ STOCK_NAMES = {
 }
 
 def get_stock_prices():
+    """Latest stock prices via yfinance batch. 60s server cache."""
+    now = time.time()
+    if _stock_cache["data"] and now - _stock_cache["ts"] < STOCK_CACHE_TTL:
+        return _stock_cache["data"]
+
     result = {}
-    # Use grouped daily bars - one call, all tickers, free tier compatible
-    # Gets previous trading day data for all US stocks
+    if not TOP_STOCKS:
+        return result
+
+    # Dedupe symbols (TOP_STOCKS has duplicates) for the fetch; iterate orig order for output
+    unique_syms = list(dict.fromkeys(TOP_STOCKS))
     try:
-        # Find the most recent trading day (skip weekends)
-        check_date = datetime.now() - timedelta(days=1)
-        for _ in range(7):
-            if check_date.weekday() < 5:  # Mon-Fri
-                break
-            check_date -= timedelta(days=1)
-        date_str = check_date.strftime("%Y-%m-%d")
-
-        r = requests.get(
-            f"https://api.polygon.io/v2/aggs/grouped/locale/us/market/stocks/{date_str}",
-            params={"adjusted": "true", "apiKey": POLYGON_API_KEY},
-            timeout=20
+        df = yf.download(
+            tickers=unique_syms,
+            period="5d",
+            auto_adjust=True,
+            group_by="ticker",
+            threads=True,
+            progress=False
         )
-        data = r.json()
-        bars = {b["T"]: b for b in data.get("results", [])}
+        if df is None or df.empty:
+            print(f"yfinance returned empty for {len(unique_syms)} symbols")
+            return result
 
-        for sym in TOP_STOCKS:
-            poly_sym = sym.replace("-", ".")
-            bar = bars.get(poly_sym) or bars.get(sym)
-            if not bar:
+        for sym in unique_syms:
+            try:
+                sub = df[sym].dropna(how="all")
+            except (KeyError, ValueError):
                 continue
-            c = float(bar.get("c", 0))
-            o = float(bar.get("o", 0))
-            h = float(bar.get("h", 0))
-            l = float(bar.get("l", 0))
-            v = int(bar.get("v", 0))
-            vw = float(bar.get("vw", 0))
+            if sub.empty:
+                continue
+            last = sub.iloc[-1]
+            try:
+                o = float(last["Open"])
+                h = float(last["High"])
+                l = float(last["Low"])
+                c = float(last["Close"])
+            except (KeyError, ValueError, TypeError):
+                continue
+            # NaN check (NaN != NaN)
+            if not (o == o and h == h and l == l and c == c):
+                continue
+            v_raw = last.get("Volume", 0)
+            v = int(v_raw) if v_raw == v_raw else 0
+            vw = round((h + l + c) / 3, 2)  # typical price proxy for VWAP
             change = round(((c - o) / o) * 100, 2) if o else 0
             result[sym] = {
                 "name": STOCK_NAMES.get(sym, sym),
@@ -626,8 +640,10 @@ def get_stock_prices():
                 "vwap": round(vw, 2),
             }
     except Exception as e:
-        pass
+        print(f"Stock data error: {e}")
 
+    _stock_cache["data"] = result
+    _stock_cache["ts"] = now
     return result
 
 def get_stock_chart(symbol):
