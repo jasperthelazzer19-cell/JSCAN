@@ -1310,21 +1310,32 @@ function loadAccuracy(){
             return;
         }
         var calls=data.calls;
-        var correct=calls.filter(function(c){return c.outcome==='correct';}).length;
-        var total=calls.length;
-        var pct=Math.round(correct/total*100);
+        // WATCH calls are not predictions — they're "no call made" — so they're
+        // excluded from accuracy entirely. Headline metric is directional
+        // accuracy on calls where the system actually committed to a direction.
+        var correct = (typeof data.correct === 'number') ? data.correct
+            : calls.filter(function(c){return c.outcome==='correct';}).length;
+        var incorrect = (typeof data.incorrect === 'number') ? data.incorrect
+            : calls.filter(function(c){return c.outcome==='incorrect';}).length;
+        var watch = (typeof data.watch === 'number') ? data.watch
+            : calls.filter(function(c){return c.outcome==='neutral' || c.flag==='YELLOW';}).length;
+        var active = correct + incorrect;
+        var pct = active>0 ? Math.round(correct/active*1000)/10 : 0;
         var col=pct>=60?'#00ff88':pct>=50?'#f0c040':'#ff4444';
-        var h='<div style="max-width:900px;margin:0 auto">';
-        h+='<div style="display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap">';
-        h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:20px 28px;flex:1;min-width:140px;text-align:center">';
-        h+='<div style="font-size:2.2em;font-weight:700;color:'+col+'">'+pct+'%</div><div style="font-size:.75em;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">Accuracy</div></div>';
-        h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:20px 28px;flex:1;min-width:140px;text-align:center">';
-        h+='<div style="font-size:2.2em;font-weight:700;color:#fff">'+total+'</div><div style="font-size:.75em;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">Total Calls</div></div>';
-        h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:20px 28px;flex:1;min-width:140px;text-align:center">';
-        h+='<div style="font-size:2.2em;font-weight:700;color:#00ff88">'+correct+'</div><div style="font-size:.75em;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">Correct</div></div>';
-        h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:20px 28px;flex:1;min-width:140px;text-align:center">';
-        h+='<div style="font-size:2.2em;font-weight:700;color:#ff4444">'+(total-correct)+'</div><div style="font-size:.75em;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">Incorrect</div></div>';
+        var h='<div style="max-width:1000px;margin:0 auto">';
+        h+='<div style="display:flex;gap:14px;margin-bottom:24px;flex-wrap:wrap">';
+        h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:20px 24px;flex:1;min-width:150px;text-align:center">';
+        h+='<div style="font-size:2.2em;font-weight:700;color:'+col+'">'+(active>0?pct+'%':'—')+'</div><div style="font-size:.7em;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">Directional Accuracy</div></div>';
+        h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:20px 24px;flex:1;min-width:150px;text-align:center">';
+        h+='<div style="font-size:2.2em;font-weight:700;color:#fff">'+active+'</div><div style="font-size:.7em;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">Active Calls</div></div>';
+        h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:20px 24px;flex:1;min-width:120px;text-align:center">';
+        h+='<div style="font-size:2.2em;font-weight:700;color:#00ff88">'+correct+'</div><div style="font-size:.7em;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">Correct</div></div>';
+        h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:20px 24px;flex:1;min-width:120px;text-align:center">';
+        h+='<div style="font-size:2.2em;font-weight:700;color:#ff4444">'+incorrect+'</div><div style="font-size:.7em;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">Incorrect</div></div>';
+        h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:20px 24px;flex:1;min-width:120px;text-align:center">';
+        h+='<div style="font-size:2.2em;font-weight:700;color:#f0c040">'+watch+'</div><div style="font-size:.7em;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">Watch Calls</div></div>';
         h+='</div>';
+        h+='<div style="color:#444;font-size:.78em;margin:-12px 4px 20px;line-height:1.5">Accuracy = Correct &divide; (Correct + Incorrect). WATCH calls are excluded — they\'re flagged as "no committed direction" and don\'t count as a prediction.</div>';
         h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;overflow:hidden">';
         h+='<table style="width:100%;border-collapse:collapse">';
         h+='<thead><tr style="background:#111;border-bottom:1px solid #1c1c1c">';
