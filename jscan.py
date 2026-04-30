@@ -1335,7 +1335,7 @@ function loadAccuracy(){
         h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:20px 24px;flex:1;min-width:120px;text-align:center">';
         h+='<div style="font-size:2.2em;font-weight:700;color:#f0c040">'+watch+'</div><div style="font-size:.7em;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">Watch Calls</div></div>';
         h+='</div>';
-        h+='<div style="color:#444;font-size:.78em;margin:-12px 4px 20px;line-height:1.5">Accuracy = Correct &divide; (Correct + Incorrect). WATCH calls are excluded — they\'re flagged as "no committed direction" and don\'t count as a prediction.</div>';
+        h+='<div style="color:#444;font-size:.78em;margin:-12px 4px 20px;line-height:1.5">Accuracy = Correct &divide; (Correct + Incorrect). WATCH calls are excluded because they are not predictions &mdash; the system declined to commit to a direction, so the call does not count either way.</div>';
         h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;overflow:hidden">';
         h+='<table style="width:100%;border-collapse:collapse">';
         h+='<thead><tr style="background:#111;border-bottom:1px solid #1c1c1c">';
