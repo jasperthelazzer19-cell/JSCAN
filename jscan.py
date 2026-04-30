@@ -1301,18 +1301,40 @@ function flagToAction(f){
     return f==='GREEN'?'BUY':f==='RED'?'SELL':f==='YELLOW'?'WATCH':f;
 }
 
-function loadAccuracy(){
+function buildAccuracySubtabs(active){
+    var windows = [
+        {key:'all', label:'All Time'},
+        {key:'30d', label:'30 Days'},
+        {key:'7d',  label:'7 Days'}
+    ];
+    var s = '<div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap">';
+    windows.forEach(function(w){
+        var on = w.key === active;
+        var bg = on ? '#00ff88' : 'transparent';
+        var fg = on ? '#000' : '#888';
+        var bd = on ? '#00ff88' : '#1c1c1c';
+        s += '<button onclick="loadAccuracy(&quot;'+w.key+'&quot;)" style="background:'+bg+';color:'+fg+';border:1px solid '+bd+';font-weight:700;font-size:.8em;padding:8px 16px;border-radius:6px;cursor:pointer;font-family:inherit;letter-spacing:.3px;transition:all .15s">'+w.label+'</button>';
+    });
+    s += '</div>';
+    return s;
+}
+
+function loadAccuracy(win){
     window.accuracyLoaded=true;
-    fetch(AGENT_BASE+'/api/accuracy').then(function(r){return r.json();}).then(function(data){
+    var winKey = (win === '30d' || win === '7d') ? win : 'all';
+    window.activeAccuracyWindow = winKey;
+    document.getElementById('accuracy-data').innerHTML = buildAccuracySubtabs(winKey) + '<div class="loading-screen"><div class="spinner"></div><div class="ld">Loading accuracy data...</div></div>';
+    fetch(AGENT_BASE+'/api/accuracy?window='+winKey).then(function(r){return r.json();}).then(function(data){
+        var subtabs = buildAccuracySubtabs(winKey);
         if(!data||!data.calls||!data.calls.length){
-            var emptyMsg='<div style="text-align:center;padding:60px;color:#333"><div style="font-size:1.2em;color:#444;margin-bottom:8px">No scored calls yet</div><div style="color:#333;font-size:.85em">First scored calls appear after the agent has been running for at least 1 trading day.</div></div>';
-            document.getElementById('accuracy-data').innerHTML=emptyMsg;
+            var label = winKey==='7d' ? 'last 7 days' : (winKey==='30d' ? 'last 30 days' : 'recorded history');
+            var emptyMsg='<div style="text-align:center;padding:60px;color:#333"><div style="font-size:1.2em;color:#444;margin-bottom:8px">No scored calls in the '+label+'</div><div style="color:#333;font-size:.85em">Switch to a wider window or come back after the next agent run.</div></div>';
+            document.getElementById('accuracy-data').innerHTML = subtabs + emptyMsg;
             return;
         }
         var calls=data.calls;
-        // WATCH calls are not predictions — they're "no call made" — so they're
-        // excluded from accuracy entirely. Headline metric is directional
-        // accuracy on calls where the system actually committed to a direction.
+        // WATCH is excluded from accuracy because the system has declined to commit
+        // a direction. Counts and percentages below use the active set only.
         var correct = (typeof data.correct === 'number') ? data.correct
             : calls.filter(function(c){return c.outcome==='correct';}).length;
         var incorrect = (typeof data.incorrect === 'number') ? data.incorrect
@@ -1323,6 +1345,7 @@ function loadAccuracy(){
         var pct = active>0 ? Math.round(correct/active*1000)/10 : 0;
         var col=pct>=60?'#00ff88':pct>=50?'#f0c040':'#ff4444';
         var h='<div style="max-width:1000px;margin:0 auto">';
+        h+=subtabs;
         h+='<div style="display:flex;gap:14px;margin-bottom:24px;flex-wrap:wrap">';
         h+='<div style="background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:20px 24px;flex:1;min-width:150px;text-align:center">';
         h+='<div style="font-size:2.2em;font-weight:700;color:'+col+'">'+(active>0?pct+'%':'—')+'</div><div style="font-size:.7em;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">Directional Accuracy</div></div>';
