@@ -1303,6 +1303,7 @@ function flagToAction(f){
 
 function buildAccuracySubtabs(active){
     var windows = [
+        {key:'v1',  label:'Since v1.0'},
         {key:'all', label:'All Time'},
         {key:'30d', label:'30 Days'},
         {key:'7d',  label:'7 Days'}
@@ -1321,14 +1322,20 @@ function buildAccuracySubtabs(active){
 
 function loadAccuracy(win){
     window.accuracyLoaded=true;
-    var winKey = (win === '30d' || win === '7d') ? win : 'all';
+    var winKey = (win === '30d' || win === '7d' || win === 'v1') ? win : 'all';
     window.activeAccuracyWindow = winKey;
     document.getElementById('accuracy-data').innerHTML = buildAccuracySubtabs(winKey) + '<div class="loading-screen"><div class="spinner"></div><div class="ld">Loading accuracy data...</div></div>';
     fetch(AGENT_BASE+'/api/accuracy?window='+winKey).then(function(r){return r.json();}).then(function(data){
         var subtabs = buildAccuracySubtabs(winKey);
         if(!data||!data.calls||!data.calls.length){
-            var label = winKey==='7d' ? 'last 7 days' : (winKey==='30d' ? 'last 30 days' : 'recorded history');
-            var emptyMsg='<div style="text-align:center;padding:60px;color:#333"><div style="font-size:1.2em;color:#444;margin-bottom:8px">No scored calls in the '+label+'</div><div style="color:#333;font-size:.85em">Switch to a wider window or come back after the next agent run.</div></div>';
+            var label = winKey==='7d' ? 'last 7 days'
+                      : winKey==='30d' ? 'last 30 days'
+                      : winKey==='v1'  ? 'period since v1.0 launch'
+                      : 'recorded history';
+            var hint = winKey==='v1'
+                ? 'v1.0 launched today. The Since v1.0 view will populate after tomorrow&apos;s agent run scores today&apos;s calls. Until then, click All Time for the full record.'
+                : 'Switch to a wider window or come back after the next agent run.';
+            var emptyMsg='<div style="text-align:center;padding:60px;color:#333"><div style="font-size:1.2em;color:#444;margin-bottom:8px">No scored calls in the '+label+'</div><div style="color:#333;font-size:.85em;max-width:480px;margin:0 auto">'+hint+'</div></div>';
             document.getElementById('accuracy-data').innerHTML = subtabs + emptyMsg;
             return;
         }
